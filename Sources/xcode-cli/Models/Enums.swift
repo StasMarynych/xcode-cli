@@ -1,11 +1,11 @@
 import Foundation
 
-public enum CodeSignStyle: String, Codable {
+public enum CodeSignStyle: String, Codable, Sendable {
     case automatic
     case manual
 }
 
-public enum ExportMethod: String, Codable {
+public enum ExportMethod: String, Codable, Sendable {
     case appStore = "app-store"
     case adHoc = "ad-hoc"
     case enterprise
@@ -71,7 +71,7 @@ public enum Destination: Codable, Equatable {
     }
 }
 
-public enum SimulatorState: String, Codable {
+public enum SimulatorState: String, Codable, Sendable {
     case shutdown = "Shutdown"
     case booted = "Booted"
     case booting = "Booting"

@@ -18,14 +18,12 @@ struct ProcessRunner: ProcessRunnerProtocol {
         let args = Arguments(arguments)
         
         if streamOutput {
-            // Stream output in real-time
             var stdoutLines: [String] = []
             
             let result = try await Subprocess.run(
                 .name(executable),
                 arguments: args
             ) { execution, standardOutput in
-                // Handle stdout streaming
                 for try await line in standardOutput.lines() {
                     stdoutLines.append(line)
                     print(line)
@@ -35,16 +33,12 @@ struct ProcessRunner: ProcessRunnerProtocol {
             let exitCode = extractExitCode(from: result.terminationStatus)
             let stdout = stdoutLines.joined(separator: "\n")
             
-            // Note: With this API, stderr is discarded when using the closure form
-            // To capture stderr, we'd need to use the non-streaming version
-            // For now, we'll return empty stderr when streaming
             return ExecutionResult(
                 exitCode: exitCode,
                 stdout: stdout,
                 stderr: ""
             )
         } else {
-            // Collect all output without streaming
             let result = try await Subprocess.run(
                 .name(executable),
                 arguments: args,

@@ -4,6 +4,12 @@ protocol ConfigurationMergerProtocol {
     func merge(spec: AppSpec?, flags: CommandFlags) throws -> Configuration
 }
 
+enum MergerError: Error, Equatable {
+    case missingRequiredField(String)
+    case invalidCodeSignStyle(String)
+    case invalidExportMethod(String)
+}
+
 struct ConfigurationMerger: ConfigurationMergerProtocol {
     func merge(spec: AppSpec?, flags: CommandFlags) throws -> Configuration {
         let projectPath = flags.project ?? spec?.projectPath
@@ -161,10 +167,4 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         
         return method
     }
-}
-
-enum MergerError: Error, Equatable {
-    case missingRequiredField(String)
-    case invalidCodeSignStyle(String)
-    case invalidExportMethod(String)
 }

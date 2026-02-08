@@ -57,15 +57,25 @@ public enum YAMLParserError: Error, Equatable {
         switch error {
         case .keyNotFound(let key, _):
             return .missingRequiredField(key.stringValue)
+            
         case .typeMismatch(let type, let context):
-            let fieldName = context.codingPath.map { $0.stringValue }.joined(separator: ".")
+            let fieldName = context.codingPath
+                .map { $0.stringValue }
+                .joined(separator: ".")
             let expectedType = String(describing: type)
+            
             return .invalidFieldType(field: fieldName, expected: expectedType)
+            
         case .valueNotFound(_, let context):
-            let fieldName = context.codingPath.map { $0.stringValue }.joined(separator: ".")
+            let fieldName = context.codingPath
+                .map { $0.stringValue }
+                .joined(separator: ".")
+            
             return .missingRequiredField(fieldName)
+            
         case .dataCorrupted(let context):
             return .invalidYAML(context.debugDescription)
+            
         @unknown default:
             return .invalidYAML(error.localizedDescription)
         }

@@ -7,13 +7,16 @@ import ArgumentParser
 struct XCodeCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "xcode-cli",
-        abstract: "Friendly and simple xcodebuild",
-        version: "0.0.1",
-        groupedSubcommands: [
-            CommandGroup(
-                name: "Helper",
-                subcommands: [Check.self]
-            )
+        abstract: "Native Swift CLI for Xcode automation",
+        version: "1.0.0",
+        subcommands: [
+            BuildCommand.self,
+            TestCommand.self,
+            RunCommand.self,
+            ArchiveCommand.self,
+            ExportCommand.self,
+            SimulatorCommand.self,
+            ValidateCommand.self,
         ]
     )
 }
