@@ -19,7 +19,6 @@ extension XCodeCLI {
                 )
                 let isSuccess = result.terminationStatus.isSuccess
 
-
                 if isSuccess, let path = result.standardOutput {
                     print("Command Line Tools: ✅ Installed at \(path)")
                 } else {
@@ -41,7 +40,6 @@ extension XCodeCLI {
                     output: .string(limit: 256)
                 )
                 let isSuccess = result.terminationStatus.isSuccess
-
 
                 if isSuccess, let version = result.standardOutput {
                     print("Xcode: ✅ Installed \(version)")

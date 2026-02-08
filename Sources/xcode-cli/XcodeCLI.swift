@@ -8,9 +8,12 @@ struct XCodeCLI: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "xcode-cli",
         abstract: "Friendly and simple xcodebuild",
-        usage: "",
         version: "0.0.1",
-        subcommands: [Check.self],
-        groupedSubcommands: []
+        groupedSubcommands: [
+            CommandGroup(
+                name: "Helper",
+                subcommands: [Check.self]
+            )
+        ]
     )
 }
