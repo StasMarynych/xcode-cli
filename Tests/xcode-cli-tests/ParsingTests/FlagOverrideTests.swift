@@ -1,18 +1,15 @@
 import Foundation
-import XCTest
+import Testing
 
 @testable import xcode_cli
 
-final class FlagOverrideTests: XCTestCase {
+@Suite("Flag Override Tests")
+struct FlagOverrideTests {
     
-    var merger: ConfigurationMerger!
+    let merger = ConfigurationMerger()
     
-    override func setUp() {
-        super.setUp()
-        merger = ConfigurationMerger()
-    }
-    
-    func testFlagOverridePriority_ProjectPath() throws {
+    @Test("Flag override priority for project path")
+    func flagOverridePriorityProjectPath() throws {
         let spec = AppSpec(
             projectPath: "SpecProject.xcodeproj",
             scheme: "SpecScheme"
@@ -25,11 +22,12 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.projectPath, "FlagProject.xcodeproj")
-        XCTAssertNil(config.workspacePath)
+        #expect(config.projectPath == "FlagProject.xcodeproj")
+        #expect(config.workspacePath == nil)
     }
     
-    func testFlagOverridePriority_WorkspacePath() throws {
+    @Test("Flag override priority for workspace path")
+    func flagOverridePriorityWorkspacePath() throws {
         let spec = AppSpec(
             workspacePath: "SpecWorkspace.xcworkspace",
             scheme: "SpecScheme"
@@ -42,11 +40,12 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.workspacePath, "FlagWorkspace.xcworkspace")
-        XCTAssertNil(config.projectPath)
+        #expect(config.workspacePath == "FlagWorkspace.xcworkspace")
+        #expect(config.projectPath == nil)
     }
     
-    func testFlagOverridePriority_Scheme() throws {
+    @Test("Flag override priority for scheme")
+    func flagOverridePriorityScheme() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "SpecScheme"
@@ -59,10 +58,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.scheme, "FlagScheme")
+        #expect(config.scheme == "FlagScheme")
     }
     
-    func testFlagOverridePriority_BuildConfiguration() throws {
+    @Test("Flag override priority for build configuration")
+    func flagOverridePriorityBuildConfiguration() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -76,10 +76,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.buildConfiguration, "Release")
+        #expect(config.buildConfiguration == "Release")
     }
     
-    func testFlagOverridePriority_SigningIdentity() throws {
+    @Test("Flag override priority for signing identity")
+    func flagOverridePrioritySigningIdentity() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -95,10 +96,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.identity, "FlagIdentity")
+        #expect(config.signing?.identity == "FlagIdentity")
     }
     
-    func testFlagOverridePriority_TeamID() throws {
+    @Test("Flag override priority for team ID")
+    func flagOverridePriorityTeamID() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -114,10 +116,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.teamID, "FLAG456")
+        #expect(config.signing?.teamID == "FLAG456")
     }
     
-    func testFlagOverridePriority_SigningStyle() throws {
+    @Test("Flag override priority for signing style")
+    func flagOverridePrioritySigningStyle() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -133,10 +136,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.style, .manual)
+        #expect(config.signing?.style == .manual)
     }
     
-    func testFlagOverridePriority_ProvisioningProfileUUID() throws {
+    @Test("Flag override priority for provisioning profile UUID")
+    func flagOverridePriorityProvisioningProfileUUID() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -152,10 +156,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.provisioningProfile?.uuid, "flag-uuid")
+        #expect(config.signing?.provisioningProfile?.uuid == "flag-uuid")
     }
     
-    func testFlagOverridePriority_ProvisioningProfileName() throws {
+    @Test("Flag override priority for provisioning profile name")
+    func flagOverridePriorityProvisioningProfileName() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -171,10 +176,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.provisioningProfile?.name, "FlagProfile")
+        #expect(config.signing?.provisioningProfile?.name == "FlagProfile")
     }
     
-    func testFlagOverridePriority_ProvisioningProfilePath() throws {
+    @Test("Flag override priority for provisioning profile path")
+    func flagOverridePriorityProvisioningProfilePath() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -190,10 +196,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.signing?.provisioningProfile?.path, "/flag/path.mobileprovision")
+        #expect(config.signing?.provisioningProfile?.path == "/flag/path.mobileprovision")
     }
     
-    func testFlagOverridePriority_TestTargets() throws {
+    @Test("Flag override priority for test targets")
+    func flagOverridePriorityTestTargets() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -207,10 +214,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.testTargets, ["FlagTest1", "FlagTest2", "FlagTest3"])
+        #expect(config.testTargets == ["FlagTest1", "FlagTest2", "FlagTest3"])
     }
     
-    func testFlagOverridePriority_ArchivePath() throws {
+    @Test("Flag override priority for archive path")
+    func flagOverridePriorityArchivePath() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -224,10 +232,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.archivePath, "/flag/archive.xcarchive")
+        #expect(config.archivePath == "/flag/archive.xcarchive")
     }
     
-    func testFlagOverridePriority_ExportPath() throws {
+    @Test("Flag override priority for export path")
+    func flagOverridePriorityExportPath() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -241,10 +250,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.exportPath, "/flag/export")
+        #expect(config.exportPath == "/flag/export")
     }
     
-    func testFlagOverridePriority_ExportMethod() throws {
+    @Test("Flag override priority for export method")
+    func flagOverridePriorityExportMethod() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -258,10 +268,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.exportMethod, ExportMethod.appStore)
+        #expect(config.exportMethod == ExportMethod.appStore)
     }
     
-    func testFlagOverridePriority_ExportOptionsPlist() throws {
+    @Test("Flag override priority for export options plist")
+    func flagOverridePriorityExportOptionsPlist() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -275,10 +286,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.exportOptionsPlist, "/flag/ExportOptions.plist")
+        #expect(config.exportOptionsPlist == "/flag/ExportOptions.plist")
     }
     
-    func testFlagOverridePriority_DerivedDataPath() throws {
+    @Test("Flag override priority for derived data path")
+    func flagOverridePriorityDerivedDataPath() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -292,10 +304,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.buildOutputPath, "/flag/DerivedData")
+        #expect(config.buildOutputPath == "/flag/DerivedData")
     }
     
-    func testFlagOverridePriority_ParallelTesting() throws {
+    @Test("Flag override priority for parallel testing")
+    func flagOverridePriorityParallelTesting() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -309,10 +322,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.parallelTesting, true)
+        #expect(config.parallelTesting == true)
     }
     
-    func testFlagOverridePriority_ParallelTestingWorkers() throws {
+    @Test("Flag override priority for parallel testing workers")
+    func flagOverridePriorityParallelTestingWorkers() throws {
         let spec = AppSpec(
             projectPath: "Test.xcodeproj",
             scheme: "TestScheme",
@@ -326,10 +340,11 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.parallelTestingWorkers, 8)
+        #expect(config.parallelTestingWorkers == 8)
     }
     
-    func testFlagOverridePriority_MultipleFieldsOverridden() throws {
+    @Test("Flag override priority for multiple fields overridden")
+    func flagOverridePriorityMultipleFieldsOverridden() throws {
         let spec = AppSpec(
             projectPath: "SpecProject.xcodeproj",
             scheme: "SpecScheme",
@@ -359,18 +374,19 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.projectPath, "FlagProject.xcodeproj")
-        XCTAssertEqual(config.scheme, "FlagScheme")
-        XCTAssertEqual(config.buildConfiguration, "Release")
-        XCTAssertEqual(config.signing?.identity, "FlagIdentity")
-        XCTAssertEqual(config.signing?.style, .manual)
-        XCTAssertEqual(config.signing?.teamID, "FLAG456")
-        XCTAssertEqual(config.testTargets, ["FlagTest1", "FlagTest2"])
-        XCTAssertEqual(config.archivePath, "/flag/archive.xcarchive")
-        XCTAssertEqual(config.parallelTesting, true)
+        #expect(config.projectPath == "FlagProject.xcodeproj")
+        #expect(config.scheme == "FlagScheme")
+        #expect(config.buildConfiguration == "Release")
+        #expect(config.signing?.identity == "FlagIdentity")
+        #expect(config.signing?.style == .manual)
+        #expect(config.signing?.teamID == "FLAG456")
+        #expect(config.testTargets == ["FlagTest1", "FlagTest2"])
+        #expect(config.archivePath == "/flag/archive.xcarchive")
+        #expect(config.parallelTesting == true)
     }
     
-    func testFlagOverridePriority_FlagNotProvidedUsesSpec() throws {
+    @Test("Flag override priority uses spec when flag not provided")
+    func flagOverridePriorityFlagNotProvidedUsesSpec() throws {
         let spec = AppSpec(
             projectPath: "SpecProject.xcodeproj",
             scheme: "SpecScheme",
@@ -389,12 +405,12 @@ final class FlagOverrideTests: XCTestCase {
         
         let config = try merger.merge(spec: spec, flags: flags)
         
-        XCTAssertEqual(config.projectPath, "SpecProject.xcodeproj")
-        XCTAssertEqual(config.scheme, "SpecScheme")
-        XCTAssertEqual(config.buildConfiguration, "Debug")
-        XCTAssertEqual(config.signing?.identity, "SpecIdentity")
-        XCTAssertEqual(config.signing?.teamID, "SPEC123")
-        XCTAssertEqual(config.testTargets, ["SpecTest"])
-        XCTAssertEqual(config.archivePath, "/spec/archive.xcarchive")
+        #expect(config.projectPath == "SpecProject.xcodeproj")
+        #expect(config.scheme == "SpecScheme")
+        #expect(config.buildConfiguration == "Debug")
+        #expect(config.signing?.identity == "SpecIdentity")
+        #expect(config.signing?.teamID == "SPEC123")
+        #expect(config.testTargets == ["SpecTest"])
+        #expect(config.archivePath == "/spec/archive.xcarchive")
     }
 }

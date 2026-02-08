@@ -8,7 +8,6 @@ struct ProcessRunnerTests {
     
     @Test("Successful execution returns exit code 0")
     func testSuccessfulExecution() async throws {
-        // Use a simple command that should succeed
         let result = try await runner.run(
             executable: "echo",
             arguments: ["Hello, World!"],
@@ -22,7 +21,6 @@ struct ProcessRunnerTests {
     
     @Test("Failed execution returns non-zero exit code")
     func testFailedExecution() async throws {
-        // Use a command that will fail (ls on a non-existent directory)
         let result = try await runner.run(
             executable: "ls",
             arguments: ["/nonexistent/directory/that/does/not/exist"],
@@ -61,7 +59,6 @@ struct ProcessRunnerTests {
     
     @Test("Stream output mode works")
     func testStreamOutputMode() async throws {
-        // Test that streaming mode doesn't crash and returns valid result
         let result = try await runner.run(
             executable: "echo",
             arguments: ["Streaming test"],

@@ -191,7 +191,9 @@ public struct ErrorFormatter {
     }
     
     private static func indent(_ text: String, by spaces: Int) -> String {
-        String(repeating: " ", count: spaces)
+        let indentation = String(repeating: " ", count: spaces)
+        
+        return text
             .components(separatedBy: .newlines)
             .map { indentation + $0 }
             .joined(separator: "\n")
