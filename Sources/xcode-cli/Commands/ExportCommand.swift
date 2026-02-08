@@ -63,12 +63,8 @@ struct ExportCommand: AsyncParsableCommand {
             
             if !result.isSuccess {
                 throw CLIError.archiveError(
-                    ArchiveError.exportFailed(message: "Export failed")
+                    ArchiveError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
                 )
-            }
-            
-            if verbose {
-                print("Export completed successfully")
             }
         } catch let error as CLIError {
             throw error

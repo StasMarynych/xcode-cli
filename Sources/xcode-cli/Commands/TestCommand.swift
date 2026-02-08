@@ -104,11 +104,9 @@ struct TestCommand: AsyncParsableCommand {
             let result = try await executor.executeTest(config: config)
             
             if !result.isSuccess {
-                throw CLIError.testError(TestError.testsFailed(message: "Tests failed"))
-            }
-            
-            if verbose {
-                print("Tests completed successfully")
+                throw CLIError.testError(
+                    TestError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
+                )
             }
         } catch let error as CLIError {
             throw error

@@ -18,24 +18,16 @@ struct ProcessRunner: ProcessRunnerProtocol {
         let args = Arguments(arguments)
         
         if streamOutput {
-            var stdoutLines: [String] = []
-            
             let result = try await Subprocess.run(
                 .name(executable),
-                arguments: args
-            ) { execution, standardOutput in
-                for try await line in standardOutput.lines() {
-                    stdoutLines.append(line)
-                    print(line)
-                }
-            }
-            
-            let exitCode = extractExitCode(from: result.terminationStatus)
-            let stdout = stdoutLines.joined(separator: "\n")
+                arguments: args,
+                output: .standardOutput,
+                error: .standardError
+            )
             
             return ExecutionResult(
-                exitCode: exitCode,
-                stdout: stdout,
+                exitCode: extractExitCode(from: result.terminationStatus),
+                stdout: "",
                 stderr: ""
             )
         } else {

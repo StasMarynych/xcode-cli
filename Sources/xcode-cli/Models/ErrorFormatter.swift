@@ -2,8 +2,37 @@ import Foundation
 
 public struct ErrorFormatter {
     
-    /// Formats a CLIError into a user-friendly error message
+    /// Formats a CLIError into a user-friendly error message.
+    ///
+    /// For xcodebuild errors (build, test, archive failures), this method returns
+    /// the raw stderr output without any formatting or parsing. For xcode-cli-specific
+    /// errors (configuration, internal, simulator errors), this method provides
+    /// formatted output with error categories and helpful suggestions.
+    ///
+    /// - Parameters:
+    ///   - error: The CLIError to format
+    ///   - verbose: If true, includes additional diagnostic information
+    /// - Returns: A formatted error message string
     public static func format(_ error: CLIError, verbose: Bool = false) -> String {
+        // For xcodebuild errors, return raw stderr without formatting
+        switch error {
+        case .buildError(let buildError):
+            if case .xcodebuildError(_, let stderr) = buildError {
+                return stderr
+            }
+        case .testError(let testError):
+            if case .xcodebuildError(_, let stderr) = testError {
+                return stderr
+            }
+        case .archiveError(let archiveError):
+            if case .xcodebuildError(_, let stderr) = archiveError {
+                return stderr
+            }
+        default:
+            break
+        }
+        
+        // For other errors, format with category and suggestions
         var output = ""
         
         output += "Error: [\(error.category)] - \(error.underlyingError)\n"
@@ -25,21 +54,6 @@ public struct ErrorFormatter {
             output += "  Category: \(error.category)\n"
             
             switch error {
-            case .buildError(let buildError):
-                if case .xcodebuildError(let exitCode, let stderr) = buildError {
-                    output += "  xcodebuild Exit Code: \(exitCode)\n"
-                    output += "  stderr:\n\(indent(stderr, by: 4))\n"
-                }
-            case .testError(let testError):
-                if case .xcodebuildError(let exitCode, let stderr) = testError {
-                    output += "  xcodebuild Exit Code: \(exitCode)\n"
-                    output += "  stderr:\n\(indent(stderr, by: 4))\n"
-                }
-            case .archiveError(let archiveError):
-                if case .xcodebuildError(let exitCode, let stderr) = archiveError {
-                    output += "  xcodebuild Exit Code: \(exitCode)\n"
-                    output += "  stderr:\n\(indent(stderr, by: 4))\n"
-                }
             case .simulatorError(let simError):
                 if case .simctlError(let exitCode, let stderr) = simError {
                     output += "  simctl Exit Code: \(exitCode)\n"
@@ -204,6 +218,11 @@ public struct ErrorFormatter {
 
 public struct XcodeBuildOutputParser {
     
+    @available(
+        *, deprecated,
+         message:
+            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
+    )
     public static func parseErrors(from output: String) -> [String] {
         var errors: [String] = []
         let lines = output.components(separatedBy: .newlines)
@@ -239,6 +258,11 @@ public struct XcodeBuildOutputParser {
         return cleanLine.trimmingCharacters(in: .whitespaces)
     }
     
+    @available(
+        *, deprecated,
+         message:
+            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
+    )
     public static func parseCompilationError(from output: String) -> BuildError? {
         let lines = output.components(separatedBy: .newlines)
         
@@ -260,6 +284,11 @@ public struct XcodeBuildOutputParser {
         return nil
     }
     
+    @available(
+        *, deprecated,
+         message:
+            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
+    )
     public static func parseLinkingError(from output: String) -> BuildError? {
         let lines = output.components(separatedBy: .newlines)
         
@@ -273,6 +302,11 @@ public struct XcodeBuildOutputParser {
         return nil
     }
     
+    @available(
+        *, deprecated,
+         message:
+            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
+    )
     public static func parseSigningError(from output: String) -> BuildError? {
         let lines = output.components(separatedBy: .newlines)
         

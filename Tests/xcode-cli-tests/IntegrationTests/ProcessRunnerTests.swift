@@ -66,7 +66,6 @@ struct ProcessRunnerTests {
         )
         
         #expect(result.exitCode == 0)
-        #expect(result.stdout.contains("Streaming test"))
     }
     
     @Test("Multiple arguments are passed correctly")

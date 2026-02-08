@@ -105,8 +105,8 @@ extension BuildError: CustomStringConvertible {
             "Linking error: \(message)"
         case .signingError(let message):
             "Code signing error: \(message)"
-        case .xcodebuildError(let exitCode, let stderr):
-            "xcodebuild failed with exit code \(exitCode): \(stderr)"
+        case .xcodebuildError(_, let stderr):
+            stderr
         }
     }
 }
@@ -127,8 +127,8 @@ extension TestError: CustomStringConvertible {
             "Test execution error: \(message)"
         case .testTargetNotFound(let target):
             "Test target not found: \(target)"
-        case .xcodebuildError(let exitCode, let stderr):
-            "xcodebuild test failed with exit code \(exitCode): \(stderr)"
+        case .xcodebuildError(_, let stderr):
+            stderr
         }
     }
 }
@@ -152,8 +152,8 @@ extension ArchiveError: CustomStringConvertible {
             "Invalid archive path: \(path)"
         case .missingExportOptions(let message):
             "Missing export options: \(message)"
-        case .xcodebuildError(let exitCode, let stderr):
-            "xcodebuild archive/export failed with exit code \(exitCode): \(stderr)"
+        case .xcodebuildError(_, let stderr):
+            stderr
         }
     }
 }
@@ -237,19 +237,28 @@ extension CLIError {
     public var exitCode: Int {
         switch self {
         case .configurationError:
-            1
-        case .buildError:
-            2
-        case .testError:
-            3
-        case .archiveError:
-            4
+            return 1
+        case .buildError(let buildError):
+            if case .xcodebuildError(let exitCode, _) = buildError {
+                return exitCode
+            }
+            return 2
+        case .testError(let testError):
+            if case .xcodebuildError(let exitCode, _) = testError {
+                return exitCode
+            }
+            return 3
+        case .archiveError(let archiveError):
+            if case .xcodebuildError(let exitCode, _) = archiveError {
+                return exitCode
+            }
+            return 4
         case .simulatorError:
-            5
+            return 5
         case .appStoreConnectError:
-            6
+            return 6
         case .internalError:
-            99
+            return 99
         }
     }
     

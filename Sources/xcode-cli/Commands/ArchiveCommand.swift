@@ -92,12 +92,8 @@ struct ArchiveCommand: AsyncParsableCommand {
             
             if !result.isSuccess {
                 throw CLIError.archiveError(
-                    ArchiveError.archiveFailed(message: "Archive failed")
+                    ArchiveError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
                 )
-            }
-            
-            if verbose {
-                print("Archive completed successfully")
             }
         } catch let error as CLIError {
             throw error

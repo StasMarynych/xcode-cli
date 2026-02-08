@@ -98,11 +98,9 @@ struct RunCommand: AsyncParsableCommand {
             )
             
             if !result.isSuccess {
-                throw CLIError.buildError(BuildError.buildFailed(message: "Run failed"))
-            }
-            
-            if verbose {
-                print("Run completed successfully")
+                throw CLIError.buildError(
+                    BuildError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
+                )
             }
         } catch let error as CLIError {
             throw error

@@ -40,7 +40,6 @@ struct ExitCodeDifferentiationTests {
             .compilationError(file: "test.swift", line: 10, message: "error"),
             .linkingError(message: "test"),
             .signingError(message: "test"),
-            .xcodebuildError(exitCode: 65, stderr: "test"),
         ]
     )
     func exitCodeDifferentiationBuildErrors(buildError: BuildError) {
@@ -51,13 +50,29 @@ struct ExitCodeDifferentiationTests {
         )
     }
     
+    @Test("Exit code differentiation for build xcodebuild errors preserves exit code")
+    func exitCodeDifferentiationBuildXcodebuildErrors() {
+        // xcodebuildError should preserve the actual xcodebuild exit code
+        let cliError = CLIError.buildError(.xcodebuildError(exitCode: 65, stderr: "test"))
+        #expect(
+            cliError.exitCode == 65,
+            "Build xcodebuildError should preserve exit code 65, got \(cliError.exitCode)"
+        )
+        
+        // Test with different exit code
+        let cliError2 = CLIError.buildError(.xcodebuildError(exitCode: 1, stderr: "test"))
+        #expect(
+            cliError2.exitCode == 1,
+            "Build xcodebuildError should preserve exit code 1, got \(cliError2.exitCode)"
+        )
+    }
+    
     @Test(
         "Exit code differentiation for test errors",
         arguments: [
             TestError.testsFailed(message: "test"),
             .testExecutionError(message: "test"),
             .testTargetNotFound(target: "TestTarget"),
-            .xcodebuildError(exitCode: 65, stderr: "test"),
         ]
     )
     func exitCodeDifferentiationTestErrors(testError: TestError) {
@@ -68,6 +83,16 @@ struct ExitCodeDifferentiationTests {
         )
     }
     
+    @Test("Exit code differentiation for test xcodebuild errors preserves exit code")
+    func exitCodeDifferentiationTestXcodebuildErrors() {
+        // xcodebuildError should preserve the actual xcodebuild exit code
+        let cliError = CLIError.testError(.xcodebuildError(exitCode: 65, stderr: "test"))
+        #expect(
+            cliError.exitCode == 65,
+            "Test xcodebuildError should preserve exit code 65, got \(cliError.exitCode)"
+        )
+    }
+    
     @Test(
         "Exit code differentiation for archive errors",
         arguments: [
@@ -75,7 +100,6 @@ struct ExitCodeDifferentiationTests {
             .exportFailed(message: "test"),
             .invalidArchivePath(path: "/test/path"),
             .missingExportOptions(message: "test"),
-            .xcodebuildError(exitCode: 65, stderr: "test"),
         ]
     )
     func exitCodeDifferentiationArchiveErrors(archiveError: ArchiveError) {
@@ -83,6 +107,16 @@ struct ExitCodeDifferentiationTests {
         #expect(
             cliError.exitCode == 4,
             "Archive error should have exit code 4, got \(cliError.exitCode) for \(archiveError)"
+        )
+    }
+    
+    @Test("Exit code differentiation for archive xcodebuild errors preserves exit code")
+    func exitCodeDifferentiationArchiveXcodebuildErrors() {
+        // xcodebuildError should preserve the actual xcodebuild exit code
+        let cliError = CLIError.archiveError(.xcodebuildError(exitCode: 65, stderr: "test"))
+        #expect(
+            cliError.exitCode == 65,
+            "Archive xcodebuildError should preserve exit code 65, got \(cliError.exitCode)"
         )
     }
     
