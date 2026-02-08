@@ -33,12 +33,15 @@ public enum Destination: Codable, Equatable {
             let name = try container.decode(String.self, forKey: .name)
             let os = try container.decode(String.self, forKey: .os)
             self = .simulator(name: name, os: os)
+            
         case "device":
             let name = try container.decode(String.self, forKey: .name)
             self = .device(name: name)
+            
         case "generic":
             let platform = try container.decode(String.self, forKey: .platform)
             self = .generic(platform: platform)
+            
         default:
             throw DecodingError.dataCorruptedError(
                 forKey: .type,
@@ -56,9 +59,11 @@ public enum Destination: Codable, Equatable {
             try container.encode("simulator", forKey: .type)
             try container.encode(name, forKey: .name)
             try container.encode(os, forKey: .os)
+            
         case .device(let name):
             try container.encode("device", forKey: .type)
             try container.encode(name, forKey: .name)
+            
         case .generic(let platform):
             try container.encode("generic", forKey: .type)
             try container.encode(platform, forKey: .platform)

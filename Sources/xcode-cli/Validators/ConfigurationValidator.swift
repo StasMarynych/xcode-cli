@@ -27,8 +27,9 @@ public struct ConfigurationValidator: ConfigurationValidatorProtocol {
     }
     
     private func validateSigningConfiguration(_ spec: AppSpec) throws {
-        guard let signing = spec.signing,
-              let profile = signing.provisioningProfile
+        guard
+            let signing = spec.signing,
+            let profile = signing.provisioningProfile
         else {
             return
         }

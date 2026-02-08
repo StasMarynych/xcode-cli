@@ -47,14 +47,17 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         )
     }
     
-    private func mergeSigningConfiguration(spec: AppSpec?, flags: CommandFlags) throws
-    -> SigningConfiguration?
-    {
+    private func mergeSigningConfiguration(
+        spec: AppSpec?,
+        flags: CommandFlags
+    ) throws -> SigningConfiguration? {
         let hasSpecSigning = spec?.signing != nil
-        let hasFlagSigning =
-        flags.signingIdentity != nil || flags.signingStyle != nil
-        || flags.provisioningProfileUUID != nil || flags.provisioningProfileName != nil
-        || flags.provisioningProfilePath != nil || flags.teamID != nil
+        let hasFlagSigning = flags.signingIdentity != nil ||
+        flags.signingStyle != nil ||
+        flags.provisioningProfileUUID != nil ||
+        flags.provisioningProfileName != nil ||
+        flags.provisioningProfilePath != nil ||
+        flags.teamID != nil
         
         if !hasSpecSigning && !hasFlagSigning {
             return nil
@@ -73,9 +76,10 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         )
     }
     
-    private func mergeProvisioningProfile(spec: AppSpec?, flags: CommandFlags) throws
-    -> ProvisioningProfile?
-    {
+    private func mergeProvisioningProfile(
+        spec: AppSpec?,
+        flags: CommandFlags
+    ) throws -> ProvisioningProfile? {
         let flagUUID = flags.provisioningProfileUUID
         let flagName = flags.provisioningProfileName
         let flagPath = flags.provisioningProfilePath

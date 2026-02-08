@@ -15,13 +15,14 @@ public struct YAMLParser: YAMLParserProtocol {
         }
         
         let yamlString: String
+        let decoder = YAMLDecoder()
+        
         do {
             yamlString = try String(contentsOf: fileURL, encoding: .utf8)
         } catch {
             throw YAMLParserError.fileNotFound(fileURL)
         }
         
-        let decoder = YAMLDecoder()
         do {
             let spec = try decoder.decode(AppSpec.self, from: yamlString)
             return spec
@@ -34,12 +35,13 @@ public struct YAMLParser: YAMLParserProtocol {
     
     public func serialize(_ spec: AppSpec) throws -> String {
         let encoder = YAMLEncoder()
+        
         do {
-            let yamlString = try encoder.encode(spec)
-            return yamlString
+            return try encoder.encode(spec)
         } catch {
             throw YAMLParserError.invalidYAML(
-                "Failed to serialize AppSpec: \(error.localizedDescription)")
+                "Failed to serialize AppSpec: \(error.localizedDescription)"
+            )
         }
     }
 }
