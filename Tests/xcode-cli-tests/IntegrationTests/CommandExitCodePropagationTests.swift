@@ -1,4 +1,5 @@
 import Testing
+import Subprocess
 import Foundation
 
 @testable import xcode_cli
@@ -121,9 +122,10 @@ struct CommandExitCodePropagationTests {
             func run(
                 executable: String,
                 arguments: [String],
+                environment: [Environment.Key: String?],
                 streamOutput: Bool
-            ) async throws -> ExecutionResult {
-                return ExecutionResult(
+            ) async throws -> CommandResult {
+                return CommandResult(
                     exitCode: exitCode,
                     stdout: "mock output",
                     stderr: "mock error"
@@ -153,9 +155,10 @@ struct CommandExitCodePropagationTests {
             func run(
                 executable: String,
                 arguments: [String],
+                environment: [Environment.Key: String?],
                 streamOutput: Bool
-            ) async throws -> ExecutionResult {
-                return ExecutionResult(
+            ) async throws -> CommandResult {
+                return CommandResult(
                     exitCode: 0,
                     stdout: "Build succeeded",
                     stderr: ""
@@ -185,9 +188,10 @@ struct CommandExitCodePropagationTests {
             func run(
                 executable: String,
                 arguments: [String],
+                environment: [Environment.Key: String?],
                 streamOutput: Bool
-            ) async throws -> ExecutionResult {
-                return ExecutionResult(
+            ) async throws -> CommandResult {
+                return CommandResult(
                     exitCode: exitCode,
                     stdout: "",
                     stderr: "error"
@@ -259,9 +263,10 @@ struct CommandExitCodePropagationTests {
             func run(
                 executable: String,
                 arguments: [String],
+                environment: [Environment.Key: String?],
                 streamOutput: Bool
-            ) async throws -> ExecutionResult {
-                return ExecutionResult(
+            ) async throws -> CommandResult {
+                return CommandResult(
                     exitCode: 65,
                     stdout: "",
                     stderr: ""
@@ -288,10 +293,11 @@ struct CommandExitCodePropagationTests {
             func run(
                 executable: String,
                 arguments: [String],
+                environment: [Environment.Key: String?],
                 streamOutput: Bool
-            ) async throws -> ExecutionResult {
+            ) async throws -> CommandResult {
                 let largeOutput = String(repeating: "x", count: 100_000)
-                return ExecutionResult(
+                return CommandResult(
                     exitCode: 65,
                     stdout: largeOutput,
                     stderr: largeOutput

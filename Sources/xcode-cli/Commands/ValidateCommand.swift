@@ -10,7 +10,19 @@ struct ValidateCommand: AsyncParsableCommand {
     @Argument(help: "Path to App Spec YAML file")
     var spec: String
     
+    @Flag(name: .long, help: "Enable verbose output")
+    var verbose: Bool = false
+    
+    @Flag(name: .long, help: "Suppress non-essential output")
+    var quiet: Bool = false
+    
     func run() async throws {
+        if quiet {
+            Logger.shared.setVerbosity(.quiet)
+        } else if verbose {
+            Logger.shared.setVerbosity(.verbose)
+        }
+        
         let url = URL(fileURLWithPath: spec)
         let parser = YAMLParser()
         let validator = ConfigurationValidator()

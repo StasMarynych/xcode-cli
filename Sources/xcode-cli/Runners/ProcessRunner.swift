@@ -5,27 +5,45 @@ protocol ProcessRunnerProtocol {
     func run(
         executable: String,
         arguments: [String],
+        environment: [Environment.Key: String?],
         streamOutput: Bool
-    ) async throws -> ExecutionResult
+    ) async throws -> CommandResult
+}
+
+extension ProcessRunnerProtocol {
+    func run(
+        executable: String,
+        arguments: [String],
+        streamOutput: Bool
+    ) async throws -> CommandResult {
+        try await run(
+            executable: executable,
+            arguments: arguments,
+            environment: [:],
+            streamOutput: streamOutput
+        )
+    }
 }
 
 struct ProcessRunner: ProcessRunnerProtocol {
     func run(
         executable: String,
         arguments: [String],
+        environment: [Environment.Key: String?],
         streamOutput: Bool
-    ) async throws -> ExecutionResult {
+    ) async throws -> CommandResult {
         let args = Arguments(arguments)
         
         if streamOutput {
             let result = try await Subprocess.run(
                 .name(executable),
                 arguments: args,
+                environment: .inherit.updating(environment),
                 output: .standardOutput,
-                error: .standardError
+                error: .standardOutput
             )
             
-            return ExecutionResult(
+            return CommandResult(
                 exitCode: extractExitCode(from: result.terminationStatus),
                 stdout: "",
                 stderr: ""
@@ -34,6 +52,7 @@ struct ProcessRunner: ProcessRunnerProtocol {
             let result = try await Subprocess.run(
                 .name(executable),
                 arguments: args,
+                environment: .inherit.updating(environment),
                 output: .string(limit: Int.max),
                 error: .string(limit: Int.max)
             )
@@ -42,7 +61,7 @@ struct ProcessRunner: ProcessRunnerProtocol {
             let stdout = result.standardOutput ?? ""
             let stderr = result.standardError ?? ""
             
-            return ExecutionResult(
+            return CommandResult(
                 exitCode: exitCode,
                 stdout: stdout,
                 stderr: stderr

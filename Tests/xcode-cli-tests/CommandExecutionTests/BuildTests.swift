@@ -1,4 +1,5 @@
 import Testing
+import Subprocess
 
 @testable import xcode_cli
 
@@ -270,9 +271,10 @@ struct MockProcessRunnerWithResult: ProcessRunnerProtocol {
     func run(
         executable: String,
         arguments: [String],
+        environment: [Environment.Key: String?],
         streamOutput: Bool
-    ) async throws -> ExecutionResult {
-        return ExecutionResult(exitCode: exitCode, stdout: stdout, stderr: stderr)
+    ) async throws -> CommandResult {
+        CommandResult(exitCode: exitCode, stdout: stdout, stderr: stderr)
     }
 }
 
@@ -285,11 +287,13 @@ class MockProcessRunnerCapture: ProcessRunnerProtocol {
     func run(
         executable: String,
         arguments: [String],
+        environment: [Environment.Key: String?],
         streamOutput: Bool
-    ) async throws -> ExecutionResult {
+    ) async throws -> CommandResult {
         lastExecutable = executable
         lastArguments = arguments
         lastStreamOutput = streamOutput
-        return ExecutionResult(exitCode: 0, stdout: "", stderr: "")
+        
+        return CommandResult(exitCode: 0, stdout: "", stderr: "")
     }
 }

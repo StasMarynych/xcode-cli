@@ -1,0 +1,56 @@
+# Comprehensive Example App Spec
+# This file demonstrates all available configuration options for xcode-cli
+
+# Project Source (specify exactly ONE of project_path or workspace_path)
+project_path: "MyApp.xcodeproj"
+# workspace_path: "MyApp.xcworkspace"
+
+# Required: Scheme to build
+scheme: "MyApp"
+
+# Optional: Build configuration (defaults to "Release")
+build_configuration: "Release"
+
+# Signing Configuration
+signing:
+  # Code signing style: "manual" or "automatic"
+  style: "manual"
+  
+  # Signing identity (certificate name)
+  identity: "Apple Distribution: My Company (TEAM123)"
+  
+  # Development team ID
+  team_id: "TEAM123"
+  
+  # Provisioning Profile (specify exactly ONE of: uuid, name, or path)
+  provisioning_profile:
+    # Option 1: By UUID (most reliable for CI/CD)
+    uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    
+    # Option 2: By profile name
+    # name: "MyApp Distribution Profile"
+    
+    # Option 3: By file path
+    # path: "/path/to/profile.mobileprovision"
+
+# Test Configuration
+test_targets:
+  - "MyAppTests"
+  - "MyAppUITests"
+
+# Parallel testing configuration
+parallel_testing: true
+parallel_testing_workers: 4
+
+# Archive Configuration
+archive_path: "./build/MyApp.xcarchive"
+
+# Export Configuration
+export_path: "./build"
+export_method: "app-store"  # Options: app-store, ad-hoc, enterprise, development
+
+# Optional: Custom export options plist
+export_options_plist: "./ExportOptions.plist"
+
+# Optional: Custom derived data path
+build_output_path: "./DerivedData"

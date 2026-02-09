@@ -18,7 +18,19 @@ struct SimulatorCommand: AsyncParsableCommand {
             abstract: "List available simulators"
         )
         
+        @Flag(name: .long, help: "Enable verbose output")
+        var verbose: Bool = false
+        
+        @Flag(name: .long, help: "Suppress non-essential output")
+        var quiet: Bool = false
+        
         func run() async throws {
+            if quiet {
+                Logger.shared.setVerbosity(.quiet)
+            } else if verbose {
+                Logger.shared.setVerbosity(.verbose)
+            }
+            
             let controller = SimulatorController(processRunner: ProcessRunner())
             
             do {
@@ -57,7 +69,19 @@ struct SimulatorCommand: AsyncParsableCommand {
         @Argument(help: "Device name or UDID")
         var device: String
         
+        @Flag(name: .long, help: "Enable verbose output")
+        var verbose: Bool = false
+        
+        @Flag(name: .long, help: "Suppress non-essential output")
+        var quiet: Bool = false
+        
         func run() async throws {
+            if quiet {
+                Logger.shared.setVerbosity(.quiet)
+            } else if verbose {
+                Logger.shared.setVerbosity(.verbose)
+            }
+            
             let controller = SimulatorController(processRunner: ProcessRunner())
             
             do {
@@ -87,7 +111,19 @@ struct SimulatorCommand: AsyncParsableCommand {
         @Argument(help: "Device name or UDID")
         var device: String
         
+        @Flag(name: .long, help: "Enable verbose output")
+        var verbose: Bool = false
+        
+        @Flag(name: .long, help: "Suppress non-essential output")
+        var quiet: Bool = false
+        
         func run() async throws {
+            if quiet {
+                Logger.shared.setVerbosity(.quiet)
+            } else if verbose {
+                Logger.shared.setVerbosity(.verbose)
+            }
+            
             let controller = SimulatorController(processRunner: ProcessRunner())
             
             do {

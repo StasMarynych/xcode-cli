@@ -98,9 +98,9 @@ struct ExitCodeHandlingTests {
         #expect(result.isSuccess == false)
     }
     
-    @Test("ExecutionResult correctly stores exit code")
+    @Test("CommandResult correctly stores exit code")
     func testExecutionResultStoresExitCode() {
-        let result = ExecutionResult(
+        let result = CommandResult(
             exitCode: 65,
             stdout: "build output",
             stderr: "build error"
@@ -110,18 +110,18 @@ struct ExitCodeHandlingTests {
         #expect(result.isSuccess == false)
     }
     
-    @Test("ExecutionResult isSuccess computed property works correctly")
+    @Test("CommandResult isSuccess computed property works correctly")
     func testIsSuccessProperty() {
-        let successResult = ExecutionResult(exitCode: 0, stdout: "", stderr: "")
+        let successResult = CommandResult(exitCode: 0, stdout: "", stderr: "")
         #expect(successResult.isSuccess == true)
         
-        let failureResult1 = ExecutionResult(exitCode: 1, stdout: "", stderr: "")
+        let failureResult1 = CommandResult(exitCode: 1, stdout: "", stderr: "")
         #expect(failureResult1.isSuccess == false)
         
-        let failureResult65 = ExecutionResult(exitCode: 65, stdout: "", stderr: "")
+        let failureResult65 = CommandResult(exitCode: 65, stdout: "", stderr: "")
         #expect(failureResult65.isSuccess == false)
         
-        let failureResult255 = ExecutionResult(exitCode: 255, stdout: "", stderr: "")
+        let failureResult255 = CommandResult(exitCode: 255, stdout: "", stderr: "")
         #expect(failureResult255.isSuccess == false)
     }
     

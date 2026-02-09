@@ -52,7 +52,16 @@ struct BuildCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Enable verbose output")
     var verbose: Bool = false
     
+    @Flag(name: .long, help: "Suppress non-essential output")
+    var quiet: Bool = false
+    
     func run() async throws {
+        if quiet {
+            Logger.shared.setVerbosity(.quiet)
+        } else if verbose {
+            Logger.shared.setVerbosity(.verbose)
+        }
+        
         let flags = CommandFlags(
             spec: spec,
             project: project,

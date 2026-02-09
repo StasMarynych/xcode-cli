@@ -1,11 +1,11 @@
 import Foundation
 
 protocol CommandExecutorProtocol {
-    func executeBuild(config: Configuration) async throws -> ExecutionResult
-    func executeTest(config: Configuration) async throws -> ExecutionResult
-    func executeArchive(config: Configuration) async throws -> ExecutionResult
-    func executeExport(archivePath: String, config: Configuration) async throws -> ExecutionResult
-    func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> ExecutionResult
+    func executeBuild(config: Configuration) async throws -> CommandResult
+    func executeTest(config: Configuration) async throws -> CommandResult
+    func executeArchive(config: Configuration) async throws -> CommandResult
+    func executeExport(archivePath: String, config: Configuration) async throws -> CommandResult
+    func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> CommandResult
 }
 
 enum XcodeBuildAction {
@@ -18,7 +18,7 @@ enum XcodeBuildAction {
 
 enum RunError: Error, CustomStringConvertible {
     case unsupportedDestination(String)
-    case simulatorNotFound(name: String)
+    case simulatorNotFound(String)
     case appBundleNotFound(String)
     case bundleIDNotFound(String)
     
@@ -26,8 +26,8 @@ enum RunError: Error, CustomStringConvertible {
         switch self {
         case .unsupportedDestination(let message):
             "Unsupported destination: \(message)"
-        case .simulatorNotFound(let name):
-            "Simulator not found: \(name)"
+        case .simulatorNotFound(let message):
+            "Simulator not found: \(message)"
         case .appBundleNotFound(let message):
             "App bundle not found: \(message)"
         case .bundleIDNotFound(let message):
@@ -45,44 +45,91 @@ struct CommandExecutor: CommandExecutorProtocol {
         simulatorController: SimulatorControllerProtocol? = nil
     ) {
         self.processRunner = processRunner
-        self.simulatorController =
-        simulatorController ?? SimulatorController(processRunner: processRunner)
+        self.simulatorController = simulatorController ?? SimulatorController(processRunner: processRunner)
     }
     
-    func executeBuild(config: Configuration) async throws -> ExecutionResult {
+    func executeBuild(config: Configuration) async throws -> CommandResult {
+        Logger.shared.progress("Building project...")
         let arguments = buildXcodeBuildArguments(action: .build, config: config)
-        return try await processRunner.run(
+        let result = try await processRunner.run(
             executable: "xcodebuild",
             arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
             streamOutput: true
         )
+        
+        if result.isSuccess {
+            Logger.shared.success("Build completed successfully")
+        } else {
+            Logger.shared.error("Build failed")
+        }
+        
+        return result
     }
     
-    func executeTest(config: Configuration) async throws -> ExecutionResult {
+    func executeTest(config: Configuration) async throws -> CommandResult {
+        Logger.shared.progress("Running tests...")
         let arguments = buildXcodeBuildArguments(action: .test, config: config)
-        return try await processRunner.run(
+        let result = try await processRunner.run(
             executable: "xcodebuild",
             arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
             streamOutput: true
         )
+        
+        if result.isSuccess {
+            Logger.shared.success("Tests passed")
+        } else {
+            Logger.shared.error("Tests failed")
+        }
+        
+        return result
     }
     
-    func executeArchive(config: Configuration) async throws -> ExecutionResult {
+    func executeArchive(config: Configuration) async throws -> CommandResult {
+        Logger.shared.progress("Creating archive...")
         let arguments = buildXcodeBuildArguments(action: .archive, config: config)
-        return try await processRunner.run(
+        let result = try await processRunner.run(
             executable: "xcodebuild",
             arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
             streamOutput: true
         )
+        
+        if result.isSuccess {
+            Logger.shared.success("Archive created successfully")
+        } else {
+            Logger.shared.error("Archive creation failed")
+        }
+        
+        return result
     }
     
-    func executeExport(archivePath: String, config: Configuration) async throws -> ExecutionResult {
+    func executeExport(archivePath: String, config: Configuration) async throws -> CommandResult {
+        Logger.shared.progress("Exporting archive...")
         let arguments = buildExportArguments(archivePath: archivePath, config: config)
-        return try await processRunner.run(
+        let result = try await processRunner.run(
             executable: "xcodebuild",
             arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
             streamOutput: true
         )
+        
+        if result.isSuccess {
+            Logger.shared.success("Export completed successfully")
+        } else {
+            Logger.shared.error("Export failed")
+        }
+        
+        return result
     }
     
     func buildExportArguments(archivePath: String, config: Configuration) -> [String] {
@@ -105,7 +152,7 @@ struct CommandExecutor: CommandExecutorProtocol {
         return arguments
     }
     
-    func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> ExecutionResult {
+    func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> CommandResult {
         guard case .simulator(let name, _) = config.destination else {
             throw RunError.unsupportedDestination(
                 "Run command only supports simulator destinations"
@@ -113,11 +160,11 @@ struct CommandExecutor: CommandExecutorProtocol {
         }
         
         guard let device = try await simulatorController.getDevice(byName: name) else {
-            throw RunError.simulatorNotFound(name: name)
+            throw RunError.simulatorNotFound(name)
         }
         
         if device.state != .booted {
-            print("Booting simulator \(name)...")
+            Logger.shared.progress("Booting simulator \(name)...")
             try await simulatorController.boot(deviceID: device.udid)
             
             var attempts = 0
@@ -131,7 +178,6 @@ struct CommandExecutor: CommandExecutorProtocol {
             }
         }
         
-        print("Building app...")
         let buildResult = try await executeBuild(config: config)
         
         guard buildResult.isSuccess else {
@@ -146,25 +192,25 @@ struct CommandExecutor: CommandExecutorProtocol {
             throw RunError.bundleIDNotFound("Failed to extract bundle ID from app at \(appPath)")
         }
         
-        print("Installing app on simulator...")
+        Logger.shared.progress("Installing app on simulator...")
         try await simulatorController.installApp(deviceID: device.udid, appPath: appPath)
         
-        print("Launching app...")
+        Logger.shared.progress("Launching app...")
         let launchResult = try await simulatorController.launchApp(
             deviceID: device.udid,
             bundleID: bundleID,
             waitForDebugger: waitForDebugger
         )
         
-        print("App launched successfully!")
-        print("Bundle ID: \(launchResult.bundleID)")
-        print("Process ID: \(launchResult.processID)")
+        Logger.shared.success("App launched successfully!")
+        Logger.shared.info("Bundle ID: \(launchResult.bundleID)")
+        Logger.shared.info("Process ID: \(launchResult.processID)")
         
         if waitForDebugger {
-            print("Waiting for debugger to attach...")
+            Logger.shared.info("Waiting for debugger to attach...")
         }
         
-        return ExecutionResult(
+        return CommandResult(
             exitCode: 0,
             stdout: "Bundle ID: \(launchResult.bundleID)\nProcess ID: \(launchResult.processID)",
             stderr: ""

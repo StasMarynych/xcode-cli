@@ -1,4 +1,5 @@
 import Foundation
+import Subprocess
 
 @testable import xcode_cli
 
@@ -29,8 +30,9 @@ class MockProcessRunner: ProcessRunnerProtocol {
     func run(
         executable: String,
         arguments: [String],
+        environment: [Environment.Key: String?],
         streamOutput: Bool
-    ) async throws -> ExecutionResult {
+    ) async throws -> CommandResult {
         lastExecutable = executable
         lastArguments = arguments
         lastStreamOutput = streamOutput
@@ -40,7 +42,7 @@ class MockProcessRunner: ProcessRunnerProtocol {
             callCount += 1
             
             if response.executable.isEmpty || executable.contains(response.executable) {
-                return ExecutionResult(
+                return CommandResult(
                     exitCode: response.exitCode,
                     stdout: response.stdout,
                     stderr: response.stderr
@@ -49,14 +51,14 @@ class MockProcessRunner: ProcessRunnerProtocol {
         }
         
         if executable.contains("PlistBuddy") {
-            return ExecutionResult(
+            return CommandResult(
                 exitCode: 0,
                 stdout: "com.example.MyApp",
                 stderr: ""
             )
         }
         
-        return ExecutionResult(
+        return CommandResult(
             exitCode: exitCode,
             stdout: stdout,
             stderr: stderr
