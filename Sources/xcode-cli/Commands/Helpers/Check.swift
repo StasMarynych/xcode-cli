@@ -2,7 +2,6 @@ import ArgumentParser
 import Subprocess
 
 extension XCodeCLI {
-    
     struct Check: AsyncParsableCommand {
         struct CommandLineToolsCheck: AsyncParsableCommand {
             static let configuration = CommandConfiguration(

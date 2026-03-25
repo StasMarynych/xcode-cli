@@ -55,16 +55,16 @@ public enum Destination: Codable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         switch self {
-        case .simulator(let name, let os):
+        case let .simulator(name, os):
             try container.encode("simulator", forKey: .type)
             try container.encode(name, forKey: .name)
             try container.encode(os, forKey: .os)
             
-        case .device(let name):
+        case let .device(name):
             try container.encode("device", forKey: .type)
             try container.encode(name, forKey: .name)
             
-        case .generic(let platform):
+        case let .generic(platform):
             try container.encode("generic", forKey: .type)
             try container.encode(platform, forKey: .platform)
         }

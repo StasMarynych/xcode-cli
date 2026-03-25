@@ -59,13 +59,7 @@ struct CommandExecutor: CommandExecutorProtocol {
             ],
             streamOutput: true
         )
-        
-        if result.isSuccess {
-            Logger.shared.success("Build completed successfully")
-        } else {
-            Logger.shared.error("Build failed")
-        }
-        
+         
         return result
     }
     
@@ -173,7 +167,7 @@ struct CommandExecutor: CommandExecutorProtocol {
                 if updatedDevice?.state == .booted {
                     break
                 }
-                try await Task.sleep(nanoseconds: 1_000_000_000)  // 1 second
+                try await Task.sleep(nanoseconds: 1_000_000_000)
                 attempts += 1
             }
         }
@@ -342,11 +336,11 @@ struct CommandExecutor: CommandExecutorProtocol {
     
     private func formatDestination(_ destination: Destination) -> String {
         switch destination {
-        case .simulator(let name, let os):
+        case let .simulator( name, os):
             "platform=iOS Simulator,name=\(name),OS=\(os)"
-        case .device(let name):
+        case let .device(name):
             "platform=iOS,name=\(name)"
-        case .generic(let platform):
+        case let .generic(platform):
             "generic/platform=\(platform)"
         }
     }

@@ -118,7 +118,6 @@ struct ValidateCommand: AsyncParsableCommand {
                 print("")
                 print("Build Output Path: \(buildOutputPath)")
             }
-            
         } catch let error as YAMLParserError {
             print("✗ Validation failed")
             print("")

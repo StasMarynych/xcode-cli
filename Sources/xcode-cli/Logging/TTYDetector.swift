@@ -12,29 +12,19 @@ struct TTYDetector {
     /// Checks both TTY status and environment variables
     /// - Returns: true if colors should be enabled, false otherwise
     func colorsEnabled() -> Bool {
-        // Check if stderr is a TTY first
-        guard isStderrTTY() else {
+        guard isStderrTTY() else { return false }
+
+        if ProcessInfo.processInfo.environment["NO_COLOR"] != nil { return false }
+
+        if let term = ProcessInfo.processInfo.environment["TERM"], term.lowercased() == "dumb" {
             return false
         }
-        
-        // Check environment variables that might disable colors
-        // NO_COLOR: https://no-color.org/
-        if ProcessInfo.processInfo.environment["NO_COLOR"] != nil {
-            return false
-        }
-        
-        if let term = ProcessInfo.processInfo.environment["TERM"],
-           term.lowercased() == "dumb"
-        {
-            return false
-        }
-        
+
         if let forceColor = ProcessInfo.processInfo.environment["FORCE_COLOR"],
-           !forceColor.isEmpty && forceColor != "0"
-        {
+           !forceColor.isEmpty && forceColor != "0" {
             return true
         }
-        
+
         return true
     }
 }

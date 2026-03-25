@@ -6,16 +6,16 @@ import Foundation
 extension YAMLParserError {
     func toConfigurationError() -> ConfigurationError {
         switch self {
-        case .fileNotFound(let url):
-            return .fileNotFound(path: url.path)
-        case .invalidYAML(let message):
-            return .invalidYAML(message: message)
-        case .missingRequiredField(let field):
-            return .missingRequiredField(field: field)
-        case .invalidFieldType(let field, let expected):
-            return .invalidFieldType(field: field, expected: expected)
-        case .conflictingFields(let fields):
-            return .conflictingFields(fields: fields)
+        case let .fileNotFound(url):
+            .fileNotFound(path: url.path)
+        case let .invalidYAML(message):
+            .invalidYAML(message: message)
+        case let .missingRequiredField(field):
+            .missingRequiredField(field: field)
+        case let .invalidFieldType(field, expected):
+            .invalidFieldType(field: field, expected: expected)
+        case let .conflictingFields(fields):
+            .conflictingFields(fields: fields)
         }
     }
 }
@@ -24,19 +24,19 @@ extension ValidationError {
     func toConfigurationError() -> ConfigurationError {
         switch self {
         case .missingProjectOrWorkspace:
-            return .missingProjectOrWorkspace
+            .missingProjectOrWorkspace
         case .bothProjectAndWorkspaceSpecified:
-            return .bothProjectAndWorkspaceSpecified
+            .bothProjectAndWorkspaceSpecified
         case .missingScheme:
-            return .missingScheme
+            .missingScheme
         case .invalidExportMethod(let method):
-            return .invalidExportMethod(method: method)
+            .invalidExportMethod(method: method)
         case .missingSigningIdentity:
-            return .missingSigningIdentity
+            .missingSigningIdentity
         case .invalidParallelTestingWorkers(let count):
-            return .invalidParallelTestingWorkers(count: count)
+            .invalidParallelTestingWorkers(count: count)
         case .multipleProvisioningProfileFieldsSpecified:
-            return .multipleProvisioningProfileFieldsSpecified
+            .multipleProvisioningProfileFieldsSpecified
         }
     }
 }
@@ -45,11 +45,11 @@ extension MergerError {
     func toConfigurationError() -> ConfigurationError {
         switch self {
         case .missingRequiredField(let field):
-            return .missingRequiredField(field: field)
+            .missingRequiredField(field: field)
         case .invalidCodeSignStyle(let style):
-            return .invalidCodeSignStyle(style: style)
+            .invalidCodeSignStyle(style: style)
         case .invalidExportMethod(let method):
-            return .invalidExportMethod(method: method)
+            .invalidExportMethod(method: method)
         }
     }
 }
@@ -58,13 +58,13 @@ extension RunError {
     func toSimulatorError() -> SimulatorError {
         switch self {
         case .unsupportedDestination(let message):
-            return .commandFailed(message: message)
+            .commandFailed(message: message)
         case .simulatorNotFound(let name):
-            return .deviceNotFound(identifier: name)
+            .deviceNotFound(identifier: name)
         case .appBundleNotFound(let message):
-            return .appInstallFailed(message: message)
+            .appInstallFailed(message: message)
         case .bundleIDNotFound(let message):
-            return .appLaunchFailed(message: message)
+            .appLaunchFailed(message: message)
         }
     }
 }

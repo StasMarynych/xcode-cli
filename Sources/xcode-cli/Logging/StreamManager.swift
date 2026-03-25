@@ -2,7 +2,6 @@ import Foundation
 
 /// Manages output to the correct streams (stdout/stderr)
 struct StreamManager {
-    
     /// Write a message to stderr
     /// - Parameter message: The message to write
     func writeToStderr(_ message: String) {

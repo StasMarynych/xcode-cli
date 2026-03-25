@@ -119,12 +119,6 @@ struct StreamSeparationTests {
             streamOutput: false
         )
         
-        if result.isSuccess {
-            logger.success("Build completed successfully")
-        } else {
-            logger.error("Build failed")
-        }
-        
         #expect(result.exitCode == 0)
         #expect(!result.stdout.isEmpty)
     }

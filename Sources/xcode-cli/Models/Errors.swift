@@ -20,15 +20,15 @@ public enum ConfigurationError: Error, Equatable {
 extension ConfigurationError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .fileNotFound(let path):
+        case let .fileNotFound(path):
             "File not found: \(path)"
-        case .invalidYAML(let message):
+        case let .invalidYAML(message):
             "Invalid YAML: \(message)"
-        case .missingRequiredField(let field):
+        case let .missingRequiredField(field):
             "Missing required field: \(field)"
-        case .invalidFieldType(let field, let expected):
+        case let .invalidFieldType(field, expected):
             "Invalid field type for '\(field)': expected \(expected)"
-        case .conflictingFields(let fields):
+        case let .conflictingFields(fields):
             "Conflicting fields: \(fields.joined(separator: ", "))"
         case .missingProjectOrWorkspace:
             "Missing project or workspace: specify either project_path or workspace_path"
@@ -36,17 +36,17 @@ extension ConfigurationError: CustomStringConvertible {
             "Both project and workspace specified: use only one"
         case .missingScheme:
             "Missing required field: scheme"
-        case .invalidExportMethod(let method):
+        case let .invalidExportMethod(method):
             "Invalid export method: \(method)"
         case .missingSigningIdentity:
             "Missing signing identity"
-        case .invalidParallelTestingWorkers(let count):
+        case let .invalidParallelTestingWorkers(count):
             "Invalid parallel testing workers: \(count)"
         case .multipleProvisioningProfileFieldsSpecified:
             "Multiple provisioning profile fields specified: use only one of uuid, name, or path"
-        case .invalidCodeSignStyle(let style):
+        case let .invalidCodeSignStyle(style):
             "Invalid code sign style: \(style)"
-        case .mergerError(let message):
+        case let .mergerError(message):
             message
         }
     }
@@ -91,9 +91,9 @@ public enum BuildError: Error, Equatable {
 extension BuildError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .buildFailed(let message):
+        case let .buildFailed(message):
             "Build failed: \(message)"
-        case .compilationError(let file, let line, let message):
+        case let .compilationError(file, line, message):
             if let file = file, let line = line {
                 "Compilation error in \(file):\(line): \(message)"
             } else if let file = file {
@@ -101,11 +101,11 @@ extension BuildError: CustomStringConvertible {
             } else {
                 "Compilation error: \(message)"
             }
-        case .linkingError(let message):
+        case let .linkingError(message):
             "Linking error: \(message)"
-        case .signingError(let message):
+        case let .signingError(message):
             "Code signing error: \(message)"
-        case .xcodebuildError(_, let stderr):
+        case let .xcodebuildError(_, stderr):
             stderr
         }
     }
@@ -121,13 +121,13 @@ public enum TestError: Error, Equatable {
 extension TestError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .testsFailed(let message):
+        case let .testsFailed(message):
             "Tests failed: \(message)"
-        case .testExecutionError(let message):
+        case let .testExecutionError(message):
             "Test execution error: \(message)"
-        case .testTargetNotFound(let target):
+        case let .testTargetNotFound(target):
             "Test target not found: \(target)"
-        case .xcodebuildError(_, let stderr):
+        case let .xcodebuildError(_, stderr):
             stderr
         }
     }
@@ -175,27 +175,27 @@ public enum SimulatorError: Error, Equatable {
 extension SimulatorError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .commandFailed(let message):
+        case let .commandFailed(message):
             "Simulator command failed: \(message)"
-        case .bootFailed(let deviceID, let reason):
+        case let .bootFailed(deviceID, reason):
             "Failed to boot simulator \(deviceID): \(reason)"
-        case .shutdownFailed(let deviceID, let reason):
+        case let .shutdownFailed(deviceID, reason):
             "Failed to shutdown simulator \(deviceID): \(reason)"
-        case .deviceNotFound(let identifier):
+        case let .deviceNotFound(identifier):
             "Simulator device not found: \(identifier)"
-        case .appInstallFailed(let message):
+        case let .appInstallFailed(message):
             "App installation failed: \(message)"
-        case .appLaunchFailed(let message):
+        case let .appLaunchFailed(message):
             "App launch failed: \(message)"
-        case .simctlError(let exitCode, let stderr):
+        case let .simctlError(exitCode, stderr):
             "simctl failed with exit code \(exitCode): \(stderr)"
-        case .installFailed(let deviceID, let appPath, let reason):
+        case let .installFailed(deviceID, appPath, reason):
             "Failed to install app at \(appPath) on simulator \(deviceID): \(reason)"
-        case .launchFailed(let deviceID, let bundleID, let reason):
+        case let .launchFailed(deviceID, bundleID, reason):
             "Failed to launch app \(bundleID) on simulator \(deviceID): \(reason)"
-        case .terminateFailed(let deviceID, let bundleID, let reason):
+        case let .terminateFailed(deviceID, bundleID, reason):
             "Failed to terminate app \(bundleID) on simulator \(deviceID): \(reason)"
-        case .parsingFailed(let message):
+        case let .parsingFailed(message):
             "Failed to parse simulator output: \(message)"
         }
     }
@@ -211,13 +211,13 @@ public enum AppStoreConnectError: Error, Equatable {
 extension AppStoreConnectError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .authenticationFailed(let message):
+        case let .authenticationFailed(message):
             "App Store Connect authentication failed: \(message)"
-        case .uploadFailed(let message):
+        case let .uploadFailed(message):
             "Upload failed: \(message)"
-        case .invalidCredentials(let message):
+        case let .invalidCredentials(message):
             "Invalid credentials: \(message)"
-        case .apiError(let statusCode, let message):
+        case let .apiError(statusCode, message):
             "App Store Connect API error (\(statusCode)): \(message)"
         }
     }
@@ -233,8 +233,8 @@ public enum CLIError: Error {
     case internalError(message: String)
 }
 
-extension CLIError {
-    public var exitCode: Int {
+public extension CLIError {
+    var exitCode: Int {
         switch self {
         case .configurationError:
             return 1
@@ -262,7 +262,7 @@ extension CLIError {
         }
     }
     
-    public var category: String {
+    var category: String {
         switch self {
         case .configurationError:
             "Configuration"
@@ -281,7 +281,7 @@ extension CLIError {
         }
     }
     
-    public var underlyingError: Error {
+    var underlyingError: Error {
         switch self {
         case .configurationError(let error):
             error

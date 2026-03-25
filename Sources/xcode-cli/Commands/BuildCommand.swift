@@ -6,138 +6,86 @@ struct BuildCommand: AsyncParsableCommand {
         commandName: "build",
         abstract: "Build an Xcode project or workspace"
     )
-    
+
     @Option(name: .long, help: "Path to App Spec YAML file")
     var spec: String?
-    
+
     @Option(name: .long, help: "Project file path (.xcodeproj)")
     var project: String?
-    
+
     @Option(name: .long, help: "Workspace file path (.xcworkspace)")
     var workspace: String?
-    
+
     @Option(name: [.short, .long], help: "Scheme name")
     var scheme: String?
-    
+
     @Option(name: [.short, .long], help: "Build configuration (Debug, Release, etc.)")
     var configuration: String?
-    
-    @Option(
-        name: [.short, .long],
-        help: "Destination (e.g., 'platform=iOS Simulator,name=iPhone 15,OS=17.0')"
-    )
+
+    @Option(name: [.short, .long], help: "Destination (e.g., 'platform=iOS Simulator,name=iPhone 15,OS=17.0')")
     var destination: String?
-    
+
     @Option(name: .long, help: "Code signing identity")
     var signingIdentity: String?
-    
+
     @Option(name: .long, help: "Code signing style (automatic or manual)")
     var signingStyle: String?
-    
+
     @Option(name: .long, help: "Provisioning profile UUID")
     var provisioningProfileUUID: String?
-    
+
     @Option(name: .long, help: "Provisioning profile name")
     var provisioningProfileName: String?
-    
+
     @Option(name: .long, help: "Provisioning profile path")
     var provisioningProfilePath: String?
-    
+
     @Option(name: .long, help: "Development team ID")
     var teamID: String?
-    
+
     @Option(name: .long, help: "Derived data path")
     var derivedDataPath: String?
-    
+
     @Flag(name: .long, help: "Enable verbose output")
     var verbose: Bool = false
-    
+
     @Flag(name: .long, help: "Suppress non-essential output")
     var quiet: Bool = false
-    
+
+    @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
+    var formatter: String?
+
     func run() async throws {
-        if quiet {
-            Logger.shared.setVerbosity(.quiet)
-        } else if verbose {
-            Logger.shared.setVerbosity(.verbose)
-        }
-        
-        let flags = CommandFlags(
-            spec: spec,
-            project: project,
-            workspace: workspace,
-            scheme: scheme,
-            configuration: configuration,
-            destination: destination,
-            signingIdentity: signingIdentity,
-            signingStyle: signingStyle,
+        applyVerbosity(quiet: quiet, verbose: verbose)
+
+        let config = try resolveConfig(spec: spec, flags: CommandFlags(
+            spec: spec, project: project, workspace: workspace,
+            scheme: scheme, configuration: configuration, destination: destination,
+            signingIdentity: signingIdentity, signingStyle: signingStyle,
             provisioningProfileUUID: provisioningProfileUUID,
             provisioningProfileName: provisioningProfileName,
             provisioningProfilePath: provisioningProfilePath,
-            teamID: teamID,
-            derivedDataPath: derivedDataPath
-        )
-        
-        let appSpec = try loadAppSpec(from: spec)
-        
-        let merger = ConfigurationMerger()
-        let config: Configuration
-        
-        do {
-            config = try merger.merge(spec: appSpec, flags: flags)
-        } catch let error as MergerError {
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
-        } catch {
-            throw CLIError.configurationError(
-                ConfigurationError.mergerError(message: error.localizedDescription)
-            )
-        }
-        
+            teamID: teamID, derivedDataPath: derivedDataPath
+        ))
+
+        let pipeline = try FormatterPipeline(formatterPath: formatter)
         let executor = CommandExecutor(processRunner: ProcessRunner())
-        
-        do {
-            let result = try await executor.executeBuild(config: config)
-            
-            if !result.isSuccess {
-                throw CLIError.buildError(
-                    BuildError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
-                )
+
+        if formatter != nil {
+            logProgress("Building project...")
+            let exitCode = try await pipeline.run(
+                xcodebuildArgs: executor.buildXcodeBuildArguments(action: .build, config: config)
+            )
+
+            if exitCode != 0 {
+                throw CLIError.buildError(.xcodebuildError(exitCode: exitCode, stderr: ""))
             }
-        } catch let error as CLIError {
-            throw error
-        } catch {
-            throw CLIError.buildError(BuildError.buildFailed(message: error.localizedDescription))
-        }
-    }
-    
-    private func loadAppSpec(from path: String?) throws -> AppSpec? {
-        guard let specPath = path else {
-            return nil
-        }
-        
-        let url = URL(fileURLWithPath: specPath)
-        let parser = YAMLParser()
-        
-        do {
-            let spec = try parser.parse(fileURL: url)
-            let validator = ConfigurationValidator()
-            try validator.validate(spec)
-            
-            return spec
-        } catch let error as YAMLParserError {
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
-        } catch let error as ValidationError {
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
-        } catch {
-            throw CLIError.configurationError(
-                ConfigurationError.mergerError(message: error.localizedDescription)
-            )
+        } else {
+            let result = try await executor.executeBuild(config: config)
+
+            if !result.isSuccess {
+                throw CLIError.buildError(.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr))
+            }
         }
     }
 }

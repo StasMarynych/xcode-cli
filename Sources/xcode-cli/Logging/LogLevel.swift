@@ -8,40 +8,26 @@ enum LogLevel {
     case error
     case debug
     case progress
-    
-    /// Icon associated with this log level
+
     var icon: String {
         switch self {
-        case .info:
-            "ℹ"
-        case .success:
-            "✓"
-        case .warning:
-            "⚠"
-        case .error:
-            "✗"
-        case .debug:
-            "◆"
-        case .progress:
-            "▸"
+        case .info: "ℹ"
+        case .success: "✓"
+        case .warning: "⚠"
+        case .error: "✗"
+        case .debug: "◆"
+        case .progress: "▸"
         }
     }
-    
-    /// Color associated with this log level
+
     var color: ANSIColor {
         switch self {
-        case .info:
-            .cyan
-        case .success:
-            .green
-        case .warning:
-            .yellow
-        case .error:
-            .red
-        case .debug:
-            .gray
-        case .progress:
-            .blue
+        case .info: .cyan
+        case .success: .green
+        case .warning: .yellow
+        case .error: .red
+        case .debug: .gray
+        case .progress: .blue
         }
     }
 }

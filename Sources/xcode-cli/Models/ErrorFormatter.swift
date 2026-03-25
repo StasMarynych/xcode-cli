@@ -1,7 +1,6 @@
 import Foundation
 
 public struct ErrorFormatter {
-    
     /// Formats a CLIError into a user-friendly error message.
     ///
     /// For xcodebuild errors (build, test, archive failures), this method returns
@@ -37,9 +36,7 @@ public struct ErrorFormatter {
         
         output += "Error: [\(error.category)] - \(error.underlyingError)\n"
         
-        if case .configurationError(let configError) = error,
-           let fieldName = configError.fieldName
-        {
+        if case .configurationError(let configError) = error, let fieldName = configError.fieldName {
             output += "  Field: \(fieldName)\n"
         }
         
@@ -92,9 +89,9 @@ public struct ErrorFormatter {
             "Check that the file path is correct and the file exists"
         case .invalidYAML:
             "Verify your YAML syntax is correct. Use a YAML validator to check for errors"
-        case .missingRequiredField(let field):
+        case let .missingRequiredField(field):
             "Add '\(field)' to your App Spec or use the --\(field) flag"
-        case .invalidFieldType(let field, let expected):
+        case let .invalidFieldType(field, expected):
             "Ensure '\(field)' is of type \(expected)"
         case .conflictingFields:
             "Remove one of the conflicting fields from your configuration"
@@ -211,112 +208,5 @@ public struct ErrorFormatter {
             .components(separatedBy: .newlines)
             .map { indentation + $0 }
             .joined(separator: "\n")
-    }
-}
-
-// MARK: - xcodebuild Output Parser
-
-public struct XcodeBuildOutputParser {
-    
-    @available(
-        *, deprecated,
-         message:
-            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
-    )
-    public static func parseErrors(from output: String) -> [String] {
-        var errors: [String] = []
-        let lines = output.components(separatedBy: .newlines)
-        
-        for line in lines {
-            if line.contains("error:") {
-                errors.append(extractError(from: line))
-            }
-            
-            if line.contains("ld:") && line.contains("error:") {
-                errors.append(extractError(from: line))
-            }
-            
-            if line.contains("Code Signing Error:") || line.contains("CodeSign error:") {
-                errors.append(extractError(from: line))
-            }
-            
-            if line.contains("Test Case") && line.contains("failed") {
-                errors.append(extractError(from: line))
-            }
-        }
-        
-        return errors
-    }
-    
-    private static func extractError(from line: String) -> String {
-        let cleanLine = line.replacingOccurrences(
-            of: "\\x1B\\[[0-9;]*[a-zA-Z]",
-            with: "",
-            options: .regularExpression
-        )
-        
-        return cleanLine.trimmingCharacters(in: .whitespaces)
-    }
-    
-    @available(
-        *, deprecated,
-         message:
-            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
-    )
-    public static func parseCompilationError(from output: String) -> BuildError? {
-        let lines = output.components(separatedBy: .newlines)
-        
-        for line in lines {
-            if let match = line.range(
-                of: #"([^:]+):(\d+):(\d+): error: (.+)"#, options: .regularExpression)
-            {
-                let components = line[match].components(separatedBy: ":")
-                if components.count >= 4 {
-                    let file = components[0]
-                    let lineNumber = Int(components[1]) ?? 0
-                    let message = components.dropFirst(3).joined(separator: ":")
-                    return .compilationError(
-                        file: file, line: lineNumber, message: message.trimmingCharacters(in: .whitespaces))
-                }
-            }
-        }
-        
-        return nil
-    }
-    
-    @available(
-        *, deprecated,
-         message:
-            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
-    )
-    public static func parseLinkingError(from output: String) -> BuildError? {
-        let lines = output.components(separatedBy: .newlines)
-        
-        for line in lines {
-            if line.contains("ld:") && line.contains("error:") {
-                let message = line.trimmingCharacters(in: .whitespaces)
-                return .linkingError(message: message)
-            }
-        }
-        
-        return nil
-    }
-    
-    @available(
-        *, deprecated,
-         message:
-            "XcodeBuildOutputParser is deprecated. xcode-cli now returns raw xcodebuild output without parsing or formatting. Users should pipe output to external formatters like xcbeautify or xcpretty if formatting is desired."
-    )
-    public static func parseSigningError(from output: String) -> BuildError? {
-        let lines = output.components(separatedBy: .newlines)
-        
-        for line in lines {
-            if line.contains("Code Signing Error:") || line.contains("CodeSign error:") {
-                let message = line.trimmingCharacters(in: .whitespaces)
-                return .signingError(message: message)
-            }
-        }
-        
-        return nil
     }
 }

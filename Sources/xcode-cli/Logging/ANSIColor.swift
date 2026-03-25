@@ -11,7 +11,7 @@ enum ANSIColor: String {
     case cyan = "\u{001B}[36m"
     case gray = "\u{001B}[90m"
     case white = "\u{001B}[97m"
-    
+
     func apply(to text: String) -> String {
         self.rawValue + text + ANSIColor.reset.rawValue
     }

@@ -2,9 +2,9 @@ import Foundation
 
 /// Helper for handling and formatting CLI errors
 struct ErrorHandler {
-    
     static func handle(_ error: CLIError, verbose: Bool) -> Never {
         let formattedError = ErrorFormatter.format(error, verbose: verbose)
+        
         fputs(formattedError, stderr)
         fputs("\n", stderr)
         exit(Int32(error.exitCode))

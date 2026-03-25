@@ -16,7 +16,7 @@ struct XCodeCLI: AsyncParsableCommand {
             ArchiveCommand.self,
             ExportCommand.self,
             SimulatorCommand.self,
-            ValidateCommand.self,
+            ValidateCommand.self
         ]
     )
 }

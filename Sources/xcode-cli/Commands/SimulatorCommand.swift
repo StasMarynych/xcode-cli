@@ -8,7 +8,7 @@ struct SimulatorCommand: AsyncParsableCommand {
         subcommands: [
             ListCommand.self,
             BootCommand.self,
-            ShutdownCommand.self,
+            ShutdownCommand.self
         ]
     )
     
