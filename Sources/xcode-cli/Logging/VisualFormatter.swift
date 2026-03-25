@@ -7,9 +7,15 @@ import Foundation
 struct VisualFormatter {
     private let ttyDetector = TTYDetector()
 
-    func format(message: String, level: LogLevel, prefix: String? = nil) -> String {
+    func format(message: String, level: LogLevel, prefix: String? = nil, timestamp: String? = nil) -> String {
         let useColors = ttyDetector.colorsEnabled()
-        var result = styled(level.icon, color: level.color, enabled: useColors) + " "
+        var result = ""
+
+        if let ts = timestamp {
+            result += styled(ts, color: .gray, enabled: useColors) + " "
+        }
+
+        result += styled(level.icon, color: level.color, enabled: useColors) + " "
 
         if let prefix {
             result += styled("[\(prefix)]", color: level.color, enabled: useColors) + " "
@@ -18,11 +24,17 @@ struct VisualFormatter {
         return result + styled(message, color: level.color, enabled: useColors)
     }
 
-    func format(messages: [String], level: LogLevel, prefix: String? = nil) -> String {
+    func format(messages: [String], level: LogLevel, prefix: String? = nil, timestamp: String? = nil) -> String {
         guard !messages.isEmpty else { return "" }
 
         let useColors = ttyDetector.colorsEnabled()
-        var result = styled(level.icon, color: level.color, enabled: useColors) + " "
+        var result = ""
+
+        if let ts = timestamp {
+            result += styled(ts, color: .gray, enabled: useColors) + " "
+        }
+
+        result += styled(level.icon, color: level.color, enabled: useColors) + " "
 
         if let prefix {
             result += styled("[\(prefix)]", color: level.color, enabled: useColors) + " "
@@ -35,6 +47,28 @@ struct VisualFormatter {
         }
 
         return result
+    }
+
+    /// Formats a key-value context table (like fastlane's parameter table)
+    func formatTable(rows: [(key: String, value: String)], title: String? = nil) -> String {
+        let useColors = ttyDetector.colorsEnabled()
+        guard !rows.isEmpty else { return "" }
+
+        let keyWidth = rows.map(\.key.count).max() ?? 0
+        var lines: [String] = []
+
+        if let title {
+            lines.append(useColors ? ANSIColor.cyan.apply(to: title) : title)
+        }
+
+        for row in rows {
+            // Pad using plain key length (no ANSI in key), then colorize the whole line
+            let paddedKey = row.key.padding(toLength: keyWidth, withPad: " ", startingAt: 0)
+            let line = "  \(paddedKey)  \(row.value)"
+            lines.append(useColors ? ANSIColor.gray.apply(to: "  \(paddedKey)  ") + ANSIColor.white.apply(to: row.value) : line)
+        }
+
+        return lines.joined(separator: "\n")
     }
 
     private func styled(_ text: String, color: ANSIColor, enabled: Bool) -> String {

@@ -53,9 +53,9 @@ class MockSimulatorControllerForTests: SimulatorControllerProtocol {
     
     func shutdown(deviceID: String) async throws {}
     
-    func getDevice(byName name: String) async throws -> SimulatorDevice? {
+    func getDevice(by id: String) async throws -> SimulatorDevice? {
         getDeviceCalled = true
-        return devices.first { $0.name == name }
+        return devices.first { $0.name == id } ?? devices.first { $0.udid == id }
     }
     
     func installApp(deviceID: String, appPath: String) async throws {

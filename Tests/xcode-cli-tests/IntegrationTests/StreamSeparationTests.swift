@@ -100,18 +100,7 @@ struct StreamSeparationTests {
     
     @Test("Verify stream separation concept")
     func testStreamSeparationConcept() async throws {
-        // This test documents the stream separation design:
-        // 1. ProcessRunner sends raw output to stdout (when streaming)
-        // 2. Logger sends custom messages to stderr
-        // 3. This allows shell redirection like: xcode-cli build > output.log
-        //    - output.log will contain only raw xcodebuild output
-        //    - Custom log messages will still appear on the terminal (stderr)
-        
         let runner = ProcessRunner()
-        let logger = Logger.shared
-        
-        // Simulate a typical workflow
-        logger.progress("Building project...")
         
         let result = try await runner.run(
             executable: "echo",

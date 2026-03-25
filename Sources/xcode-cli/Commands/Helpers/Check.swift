@@ -16,11 +16,11 @@ extension XCodeCLI {
                     output: .string(limit: 256)
                 )
                 let isSuccess = result.terminationStatus.isSuccess
-                
+
                 if isSuccess, let path = result.standardOutput {
-                    print("Command Line Tools: ✅ Installed at \(path)")
+                    logSuccess("Command Line Tools: Installed at \(path.trimmingCharacters(in: .whitespacesAndNewlines))")
                 } else {
-                    print("Command Line Tools: ❌ Not installed")
+                    logError("Command Line Tools: Not installed")
                 }
             }
         }
@@ -38,11 +38,11 @@ extension XCodeCLI {
                     output: .string(limit: 256)
                 )
                 let isSuccess = result.terminationStatus.isSuccess
-                
+
                 if isSuccess, let version = result.standardOutput {
-                    print("Xcode: ✅ Installed \(version)")
+                    logSuccess("Xcode: Installed \(version.trimmingCharacters(in: .whitespacesAndNewlines))")
                 } else {
-                    print("Xcode: ❌ Not installed")
+                    logError("Xcode: Not installed")
                 }
             }
         }

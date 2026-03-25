@@ -17,125 +17,74 @@ struct ValidateCommand: AsyncParsableCommand {
     var quiet: Bool = false
     
     func run() async throws {
-        if quiet {
-            Logger.shared.setVerbosity(.quiet)
-        } else if verbose {
-            Logger.shared.setVerbosity(.verbose)
-        }
-        
+        applyVerbosity(quiet: quiet, verbose: verbose)
+
         let url = URL(fileURLWithPath: spec)
         let parser = YAMLParser()
         let validator = ConfigurationValidator()
-        
+
         do {
-            print("Validating App Spec: \(spec)")
-            print("")
-            
+            logProgress("Validating App Spec: \(spec)")
+
             let appSpec = try parser.parse(fileURL: url)
             try validator.validate(appSpec)
-            
-            print("✓ App Spec is valid")
-            print("")
-            print("Configuration Summary:")
-            print("---------------------")
-            
+
+            logSuccess("App Spec is valid")
+
+            var rows: [(key: String, value: String)] = []
+
             if let projectPath = appSpec.projectPath {
-                print("Project: \(projectPath)")
+                rows.append(("Project", projectPath))
             }
-            
             if let workspacePath = appSpec.workspacePath {
-                print("Workspace: \(workspacePath)")
+                rows.append(("Workspace", workspacePath))
             }
-            
-            print("Scheme: \(appSpec.scheme)")
-            
+
+            rows.append(("Scheme", appSpec.scheme))
+
             if let buildConfiguration = appSpec.buildConfiguration {
-                print("Build Configuration: \(buildConfiguration)")
+                rows.append(("Configuration", buildConfiguration))
             }
-            
+
             if let signing = appSpec.signing {
-                print("")
-                print("Signing Configuration:")
-                
-                if let style = signing.style {
-                    print("  Style: \(style.rawValue)")
-                }
-                
-                if let identity = signing.identity {
-                    print("  Identity: \(identity)")
-                }
-                
-                if let teamID = signing.teamID {
-                    print("  Team ID: \(teamID)")
-                }
-                
+                if let style = signing.style { rows.append(("Signing Style", style.rawValue)) }
+                if let identity = signing.identity { rows.append(("Signing Identity", identity)) }
+                if let teamID = signing.teamID { rows.append(("Team ID", teamID)) }
                 if let profile = signing.provisioningProfile {
                     if let uuid = profile.uuid {
-                        print("  Provisioning Profile UUID: \(uuid)")
+                        rows.append(("Profile UUID", uuid))
                     } else if let name = profile.name {
-                        print("  Provisioning Profile Name: \(name)")
+                        rows.append(("Profile Name", name))
                     } else if let path = profile.path {
-                        print("  Provisioning Profile Path: \(path)")
+                        rows.append(("Profile Path", path))
                     }
                 }
             }
-            
             if let testTargets = appSpec.testTargets, !testTargets.isEmpty {
-                print("")
-                print("Test Targets:")
-                for target in testTargets {
-                    print("  - \(target)")
-                }
+                rows.append(("Test Targets", testTargets.joined(separator: ", ")))
             }
-            
+
             if let parallelTesting = appSpec.parallelTesting, parallelTesting {
-                print("")
-                print("Parallel Testing: Enabled")
-                
-                if let workers = appSpec.parallelTestingWorkers {
-                    print("  Workers: \(workers)")
-                }
+                let workers = appSpec.parallelTestingWorkers.map { " (\($0) workers)" } ?? ""
+                rows.append(("Parallel Testing", "Enabled\(workers)"))
             }
-            
-            if let archivePath = appSpec.archivePath {
-                print("")
-                print("Archive Path: \(archivePath)")
-            }
-            
-            if let exportPath = appSpec.exportPath {
-                print("Export Path: \(exportPath)")
-            }
-            
-            if let exportMethod = appSpec.exportMethod {
-                print("Export Method: \(exportMethod.rawValue)")
-            }
-            
-            if let exportOptionsPlist = appSpec.exportOptionsPlist {
-                print("Export Options Plist: \(exportOptionsPlist)")
-            }
-            
-            if let buildOutputPath = appSpec.buildOutputPath {
-                print("")
-                print("Build Output Path: \(buildOutputPath)")
-            }
+
+            if let archivePath = appSpec.archivePath { rows.append(("Archive Path", archivePath)) }
+            if let exportPath = appSpec.exportPath { rows.append(("Export Path", exportPath)) }
+            if let exportMethod = appSpec.exportMethod { rows.append(("Export Method", exportMethod.rawValue)) }
+            if let exportOptionsPlist = appSpec.exportOptionsPlist { rows.append(("Export Options Plist", exportOptionsPlist)) }
+            if let buildOutputPath = appSpec.buildOutputPath { rows.append(("Build Output Path", buildOutputPath)) }
+
+            logTable(rows: rows, title: "Configuration Summary")
         } catch let error as YAMLParserError {
-            print("✗ Validation failed")
-            print("")
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
+            logError("Validation failed")
+            throw CLIError.configurationError(error.toConfigurationError())
         } catch let error as ValidationError {
-            print("✗ Validation failed")
-            print("")
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
+            logError("Validation failed")
+            throw CLIError.configurationError(error.toConfigurationError())
         } catch {
-            print("✗ Validation failed")
-            print("")
-            throw CLIError.configurationError(
-                ConfigurationError.mergerError(message: error.localizedDescription)
-            )
+            logError("Validation failed")
+            throw CLIError.configurationError(.mergerError(message: error.localizedDescription))
         }
     }
 }

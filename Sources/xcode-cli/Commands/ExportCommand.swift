@@ -29,12 +29,8 @@ struct ExportCommand: AsyncParsableCommand {
     var quiet: Bool = false
     
     func run() async throws {
-        if quiet {
-            Logger.shared.setVerbosity(.quiet)
-        } else if verbose {
-            Logger.shared.setVerbosity(.verbose)
-        }
-        
+        applyVerbosity(quiet: quiet, verbose: verbose)
+
         let appSpec = try loadAppSpec(from: spec)
         
         let merger = ConfigurationMerger()
@@ -57,9 +53,7 @@ struct ExportCommand: AsyncParsableCommand {
         } catch let error as MergerError {
             throw CLIError.configurationError(error.toConfigurationError())
         } catch {
-            throw CLIError.configurationError(
-                ConfigurationError.mergerError(message: error.localizedDescription)
-            )
+            throw CLIError.configurationError(.mergerError(message: error.localizedDescription))
         }
         
         let executor = CommandExecutor(processRunner: ProcessRunner())
@@ -70,17 +64,20 @@ struct ExportCommand: AsyncParsableCommand {
                 config: config
             )
             
+            logSeparator()
+
             if !result.isSuccess {
-                throw CLIError.archiveError(
-                    ArchiveError.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr)
-                )
+                throw CLIError.archiveError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         } catch let error as CLIError {
             throw error
         } catch {
-            throw CLIError.archiveError(
-                ArchiveError.exportFailed(message: error.localizedDescription)
-            )
+            throw CLIError.archiveError(.exportFailed(
+                message: error.localizedDescription
+            ))
         }
     }
     
@@ -99,17 +96,11 @@ struct ExportCommand: AsyncParsableCommand {
             
             return spec
         } catch let error as YAMLParserError {
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
+            throw CLIError.configurationError(error.toConfigurationError())
         } catch let error as ValidationError {
-            throw CLIError.configurationError(
-                error.toConfigurationError()
-            )
+            throw CLIError.configurationError(error.toConfigurationError())
         } catch {
-            throw CLIError.configurationError(
-                ConfigurationError.mergerError(message: error.localizedDescription)
-            )
+            throw CLIError.configurationError(.mergerError(message: error.localizedDescription))
         }
     }
 }

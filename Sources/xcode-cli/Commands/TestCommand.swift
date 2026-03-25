@@ -67,35 +67,61 @@ struct TestCommand: AsyncParsableCommand {
     func run() async throws {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
-        let config = try resolveConfig(spec: spec, flags: CommandFlags(
-            spec: spec, project: project, workspace: workspace,
-            scheme: scheme, configuration: configuration, destination: destination,
-            signingIdentity: signingIdentity, signingStyle: signingStyle,
-            provisioningProfileUUID: provisioningProfileUUID,
-            provisioningProfileName: provisioningProfileName,
-            provisioningProfilePath: provisioningProfilePath,
-            teamID: teamID, derivedDataPath: derivedDataPath,
-            testTargets: testTargets.isEmpty ? nil : testTargets,
-            parallelTesting: parallel ? true : nil,
-            parallelTestingWorkers: parallelTestingWorkers
-        ))
+        let config = try resolveConfig(
+            spec: spec, 
+            flags: CommandFlags(
+                spec: spec, 
+                project: project, 
+                workspace: workspace,
+                scheme: scheme, 
+                configuration: configuration, 
+                destination: destination,
+                signingIdentity: signingIdentity, 
+                signingStyle: signingStyle,
+                provisioningProfileUUID: provisioningProfileUUID,
+                provisioningProfileName: provisioningProfileName,
+                provisioningProfilePath: provisioningProfilePath,
+                teamID: teamID, 
+                derivedDataPath: derivedDataPath,
+                testTargets: testTargets.isEmpty ? nil : testTargets,
+                parallelTesting: parallel ? true : nil,
+                parallelTestingWorkers: parallelTestingWorkers
+            )
+        )
+
+        logCommandContext(config, command: "Test")
 
         let pipeline = try FormatterPipeline(formatterPath: formatter)
         let executor = CommandExecutor(processRunner: ProcessRunner())
+        let start = Date()
 
         if formatter != nil {
-            logProgress("Running tests...")
-            let exitCode = try await pipeline.run(xcodebuildArgs: executor.buildXcodeBuildArguments(action: .test, config: config))
-            if exitCode == 0 {
-                logSuccess("Tests passed")
-            } else {
-                logError("Tests failed")
-                throw CLIError.testError(.xcodebuildError(exitCode: exitCode, stderr: ""))
+            let result = try await pipeline.run(
+                xcodebuildArgs: executor.buildXcodeBuildArguments(action: .test, config: config)
+            )
+            let duration = Date().timeIntervalSince(start)
+
+            logSeparator()
+            logSummary(steps: [("scan", duration, result.isSuccess)])
+
+            if !result.isSuccess {
+                throw CLIError.testError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         } else {
             let result = try await executor.executeTest(config: config)
+            let duration = Date().timeIntervalSince(start)
+
+            logSeparator()
+            logSummary(steps: [("scan", duration, result.isSuccess)])
+
             if !result.isSuccess {
-                throw CLIError.testError(.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr))
+                throw CLIError.testError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         }
     }

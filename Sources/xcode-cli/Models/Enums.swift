@@ -76,4 +76,10 @@ public enum SimulatorState: String, Codable, Sendable {
     case booted = "Booted"
     case booting = "Booting"
     case shuttingDown = "Shutting Down"
+    case unknown = "Unknown"
+
+    public init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = SimulatorState(rawValue: raw) ?? .unknown
+    }
 }

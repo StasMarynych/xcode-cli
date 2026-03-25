@@ -107,40 +107,32 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         guard let destString = destinationString else {
             return .generic(platform: "iOS Simulator")
         }
-        
+
         if destString.contains("platform=") {
-            if destString.contains("name=") {
-                let components = destString.split(separator: ",").map {
-                    $0.trimmingCharacters(in: .whitespaces)
-                }
-                var name: String?
-                var os: String?
-                var platform: String?
-                
-                for component in components {
-                    if component.hasPrefix("name=") {
-                        name = String(component.dropFirst(5))
-                    } else if component.hasPrefix("OS=") {
-                        os = String(component.dropFirst(3))
-                    } else if component.hasPrefix("platform=") {
-                        platform = String(component.dropFirst(9))
-                    }
-                }
-                
-                if let platform = platform, platform.contains("Simulator"), let name = name {
-                    return .simulator(name: name, os: os ?? "latest")
-                } else if let name = name {
-                    return .device(name: name)
+            let components = destString.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            var name: String?
+            var os: String?
+            var platform: String?
+
+            for component in components {
+                if component.hasPrefix("name=") {
+                    name = String(component.dropFirst(5))
+                } else if component.hasPrefix("OS=") {
+                    os = String(component.dropFirst(3))
+                } else if component.hasPrefix("platform=") {
+                    platform = String(component.dropFirst(9))
                 }
             }
-            
-            let platformComponent = destString.split(separator: ",").first { $0.contains("platform=") }
-            if let platformComp = platformComponent {
-                let platform = String(platformComp.dropFirst(9).trimmingCharacters(in: .whitespaces))
+
+            if let platform, platform.contains("Simulator"), let name {
+                return .simulator(name: name, os: os ?? "latest")
+            } else if let name {
+                return .device(name: name)
+            } else if let platform {
                 return .generic(platform: platform)
             }
         }
-        
+
         return .simulator(name: destString, os: "latest")
     }
     

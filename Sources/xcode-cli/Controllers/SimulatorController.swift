@@ -4,7 +4,7 @@ protocol SimulatorControllerProtocol {
     func listDevices() async throws -> [SimulatorDevice]
     func boot(deviceID: String) async throws
     func shutdown(deviceID: String) async throws
-    func getDevice(byName name: String) async throws -> SimulatorDevice?
+    func getDevice(by id: String) async throws -> SimulatorDevice?
     func installApp(deviceID: String, appPath: String) async throws
     func launchApp(deviceID: String, bundleID: String, waitForDebugger: Bool) async throws -> LaunchResult
     func terminateApp(deviceID: String, bundleID: String) async throws
@@ -34,27 +34,42 @@ struct SimulatorController: SimulatorControllerProtocol {
     }
     
     func boot(deviceID: String) async throws {
+        let device = try? await getDevice(by: deviceID)
+
+        if let device, device.state == .booted || device.state == .booting {
+            try await openSimulatorApp()
+            return
+        }
+
         let result = try await processRunner.run(
             executable: "xcrun",
             arguments: ["simctl", "boot", deviceID],
             streamOutput: false
         )
-        
-        guard result.exitCode == 0 else {
+
+        guard result.exitCode == 0 || result.stderr.contains("current state: Booted") else {
             throw SimulatorError.bootFailed(
                 deviceID: deviceID,
                 reason: result.stderr
             )
         }
+
+        try await openSimulatorApp()
     }
-    
+
     func shutdown(deviceID: String) async throws {
+        let device = try? await getDevice(by: deviceID)
+
+        if let device, device.state == .shutdown {
+            return
+        }
+
         let result = try await processRunner.run(
             executable: "xcrun",
             arguments: ["simctl", "shutdown", deviceID],
             streamOutput: false
         )
-        
+
         guard result.exitCode == 0 else {
             throw SimulatorError.shutdownFailed(
                 deviceID: deviceID,
@@ -63,9 +78,9 @@ struct SimulatorController: SimulatorControllerProtocol {
         }
     }
     
-    func getDevice(byName name: String) async throws -> SimulatorDevice? {
+    func getDevice(by id: String) async throws -> SimulatorDevice? {
         let devices = try await listDevices()
-        return devices.first { $0.name == name }
+        return devices.first { $0.name == id } ?? devices.first { $0.udid == id }
     }
     
     func installApp(deviceID: String, appPath: String) async throws {
@@ -130,7 +145,19 @@ struct SimulatorController: SimulatorControllerProtocol {
     }
     
     // MARK: - Private Helpers
-    
+
+    private func openSimulatorApp() async throws {
+        let result = try await processRunner.run(
+            executable: "open",
+            arguments: ["-a", "Simulator"],
+            streamOutput: false
+        )
+
+        guard result.exitCode == 0 else {
+            throw SimulatorError.commandFailed(message: "Failed to open Simulator.app: \(result.stderr)")
+        }
+    }
+
     private func parseDeviceList(from json: String) throws -> [SimulatorDevice] {
         guard let data = json.data(using: .utf8) else {
             throw SimulatorError.parsingFailed(

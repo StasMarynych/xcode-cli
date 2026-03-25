@@ -87,7 +87,7 @@ struct SimulatorTests {
     }
     
     @Test("Get device by name finds correct device")
-    func testGetDeviceByNameFindsDevice() async throws {
+    func testGetDevicebyFindsDevice() async throws {
         let jsonOutput = """
       {
         "devices": {
@@ -110,7 +110,7 @@ struct SimulatorTests {
         let mockRunner = MockProcessRunner(stdout: jsonOutput, exitCode: 0)
         let controller = SimulatorController(processRunner: mockRunner)
         
-        let device = try await controller.getDevice(byName: "iPhone 15 Pro")
+        let device = try await controller.getDevice(by: "iPhone 15 Pro")
         
         #expect(device != nil)
         #expect(device?.name == "iPhone 15 Pro")
@@ -119,7 +119,7 @@ struct SimulatorTests {
     }
     
     @Test("Get device by name returns nil for non-existent device")
-    func testGetDeviceByNameReturnsNilForNonExistent() async throws {
+    func testGetDevicebyReturnsNilForNonExistent() async throws {
         let jsonOutput = """
       {
         "devices": {
@@ -137,7 +137,7 @@ struct SimulatorTests {
         let mockRunner = MockProcessRunner(stdout: jsonOutput, exitCode: 0)
         let controller = SimulatorController(processRunner: mockRunner)
         
-        let device = try await controller.getDevice(byName: "iPhone 99")
+        let device = try await controller.getDevice(by: "iPhone 99")
         
         #expect(device == nil)
     }

@@ -49,7 +49,6 @@ struct CommandExecutor: CommandExecutorProtocol {
     }
     
     func executeBuild(config: Configuration) async throws -> CommandResult {
-        Logger.shared.progress("Building project...")
         let arguments = buildXcodeBuildArguments(action: .build, config: config)
         let result = try await processRunner.run(
             executable: "xcodebuild",
@@ -64,7 +63,6 @@ struct CommandExecutor: CommandExecutorProtocol {
     }
     
     func executeTest(config: Configuration) async throws -> CommandResult {
-        Logger.shared.progress("Running tests...")
         let arguments = buildXcodeBuildArguments(action: .test, config: config)
         let result = try await processRunner.run(
             executable: "xcodebuild",
@@ -75,17 +73,10 @@ struct CommandExecutor: CommandExecutorProtocol {
             streamOutput: true
         )
         
-        if result.isSuccess {
-            Logger.shared.success("Tests passed")
-        } else {
-            Logger.shared.error("Tests failed")
-        }
-        
         return result
     }
     
     func executeArchive(config: Configuration) async throws -> CommandResult {
-        Logger.shared.progress("Creating archive...")
         let arguments = buildXcodeBuildArguments(action: .archive, config: config)
         let result = try await processRunner.run(
             executable: "xcodebuild",
@@ -96,17 +87,10 @@ struct CommandExecutor: CommandExecutorProtocol {
             streamOutput: true
         )
         
-        if result.isSuccess {
-            Logger.shared.success("Archive created successfully")
-        } else {
-            Logger.shared.error("Archive creation failed")
-        }
-        
         return result
     }
     
     func executeExport(archivePath: String, config: Configuration) async throws -> CommandResult {
-        Logger.shared.progress("Exporting archive...")
         let arguments = buildExportArguments(archivePath: archivePath, config: config)
         let result = try await processRunner.run(
             executable: "xcodebuild",
@@ -116,12 +100,6 @@ struct CommandExecutor: CommandExecutorProtocol {
             ],
             streamOutput: true
         )
-        
-        if result.isSuccess {
-            Logger.shared.success("Export completed successfully")
-        } else {
-            Logger.shared.error("Export failed")
-        }
         
         return result
     }
@@ -153,7 +131,7 @@ struct CommandExecutor: CommandExecutorProtocol {
             )
         }
         
-        guard let device = try await simulatorController.getDevice(byName: name) else {
+        guard let device = try await simulatorController.getDevice(by: name) else {
             throw RunError.simulatorNotFound(name)
         }
         
@@ -163,7 +141,7 @@ struct CommandExecutor: CommandExecutorProtocol {
             
             var attempts = 0
             while attempts < 30 {
-                let updatedDevice = try await simulatorController.getDevice(byName: name)
+                let updatedDevice = try await simulatorController.getDevice(by: name)
                 if updatedDevice?.state == .booted {
                     break
                 }
@@ -336,12 +314,15 @@ struct CommandExecutor: CommandExecutorProtocol {
     
     private func formatDestination(_ destination: Destination) -> String {
         switch destination {
-        case let .simulator( name, os):
-            "platform=iOS Simulator,name=\(name),OS=\(os)"
+        case let .simulator(name, os):
+            if os == "latest" {
+                return "platform=iOS Simulator,name=\(name)"
+            }
+            return "platform=iOS Simulator,name=\(name),OS=\(os)"
         case let .device(name):
-            "platform=iOS,name=\(name)"
+            return "platform=iOS,name=\(name)"
         case let .generic(platform):
-            "generic/platform=\(platform)"
+            return "generic/platform=\(platform)"
         }
     }
 }

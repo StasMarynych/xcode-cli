@@ -61,32 +61,59 @@ struct ArchiveCommand: AsyncParsableCommand {
     func run() async throws {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
-        let config = try resolveConfig(spec: spec, flags: CommandFlags(
-            spec: spec, project: project, workspace: workspace,
-            scheme: scheme, configuration: configuration, destination: destination,
-            signingIdentity: signingIdentity, signingStyle: signingStyle,
-            provisioningProfileUUID: provisioningProfileUUID,
-            provisioningProfileName: provisioningProfileName,
-            provisioningProfilePath: provisioningProfilePath,
-            teamID: teamID, archivePath: archivePath, derivedDataPath: derivedDataPath
-        ))
+        let config = try resolveConfig(
+            spec: spec, 
+            flags: CommandFlags(
+                spec: spec, 
+                project: project, 
+                workspace: workspace,
+                scheme: scheme, 
+                configuration: configuration, 
+                destination: destination,
+                signingIdentity: signingIdentity, 
+                signingStyle: signingStyle,
+                provisioningProfileUUID: provisioningProfileUUID,
+                provisioningProfileName: provisioningProfileName,
+                provisioningProfilePath: provisioningProfilePath,
+                teamID: teamID, 
+                archivePath: archivePath, 
+                derivedDataPath: derivedDataPath
+            )
+        )
+
+        logCommandContext(config, command: "Archive")
 
         let pipeline = try FormatterPipeline(formatterPath: formatter)
         let executor = CommandExecutor(processRunner: ProcessRunner())
+        let start = Date()
 
         if formatter != nil {
-            logProgress("Creating archive...")
-            let exitCode = try await pipeline.run(xcodebuildArgs: executor.buildXcodeBuildArguments(action: .archive, config: config))
-            if exitCode == 0 {
-                logSuccess("Archive created successfully")
-            } else {
-                logError("Archive creation failed")
-                throw CLIError.archiveError(.xcodebuildError(exitCode: exitCode, stderr: ""))
+            let result = try await pipeline.run(
+                xcodebuildArgs: executor.buildXcodeBuildArguments(action: .archive, config: config)
+            )
+            let duration = Date().timeIntervalSince(start)
+
+            logSeparator()
+            logSummary(steps: [("archive", duration, result.isSuccess)])
+
+            if !result.isSuccess {
+                throw CLIError.archiveError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         } else {
             let result = try await executor.executeArchive(config: config)
+            let duration = Date().timeIntervalSince(start)
+
+            logSeparator()
+            logSummary(steps: [("archive", duration, result.isSuccess)])
+
             if !result.isSuccess {
-                throw CLIError.archiveError(.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr))
+                throw CLIError.archiveError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         }
     }

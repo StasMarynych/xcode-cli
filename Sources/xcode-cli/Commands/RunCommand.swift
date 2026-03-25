@@ -63,23 +63,40 @@ struct RunCommand: AsyncParsableCommand {
 
         _ = try FormatterPipeline(formatterPath: formatter)
 
-        let config = try resolveConfig(spec: spec, flags: CommandFlags(
-            spec: spec, project: project, workspace: workspace,
-            scheme: scheme, configuration: configuration, destination: destination,
-            signingIdentity: signingIdentity, signingStyle: signingStyle,
-            provisioningProfileUUID: provisioningProfileUUID,
-            provisioningProfileName: provisioningProfileName,
-            provisioningProfilePath: provisioningProfilePath,
-            teamID: teamID, derivedDataPath: derivedDataPath
-        ))
+        let config = try resolveConfig(
+            spec: spec, 
+            flags: CommandFlags(
+                spec: spec, 
+                project: project, 
+                workspace: workspace,
+                scheme: scheme, 
+                configuration: configuration,
+                destination: destination,
+                signingIdentity: signingIdentity,
+                signingStyle: signingStyle,
+                provisioningProfileUUID: provisioningProfileUUID,
+                provisioningProfileName: provisioningProfileName,
+                provisioningProfilePath: provisioningProfilePath,
+                teamID: teamID,
+                derivedDataPath: derivedDataPath
+            )
+        )
+
+        logCommandContext(config, command: "Run")
 
         do {
             let result = try await CommandExecutor(processRunner: ProcessRunner()).executeRun(
                 config: config,
                 waitForDebugger: waitForDebugger
             )
+            
+            logSeparator()
+
             if !result.isSuccess {
-                throw CLIError.buildError(.xcodebuildError(exitCode: result.exitCode, stderr: result.stderr))
+                throw CLIError.buildError(.xcodebuildError(
+                    exitCode: result.exitCode, 
+                    stderr: result.stderr
+                ))
             }
         } catch let error as CLIError {
             throw error

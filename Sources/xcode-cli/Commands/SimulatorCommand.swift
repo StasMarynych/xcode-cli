@@ -25,37 +25,30 @@ struct SimulatorCommand: AsyncParsableCommand {
         var quiet: Bool = false
         
         func run() async throws {
-            if quiet {
-                Logger.shared.setVerbosity(.quiet)
-            } else if verbose {
-                Logger.shared.setVerbosity(.verbose)
-            }
-            
+            applyVerbosity(quiet: quiet, verbose: verbose)
+
             let controller = SimulatorController(processRunner: ProcessRunner())
-            
+
             do {
                 let devices = try await controller.listDevices()
-                
+
                 if devices.isEmpty {
-                    print("No simulators found")
+                    logInfo("No simulators found")
                     return
                 }
-                
-                print("Available Simulators:")
-                print("---------------------")
-                
+
+                logSeparator(title: "Available Simulators")
+
                 for device in devices {
-                    print("\(device.name) (\(device.udid))")
-                    print("  Runtime: \(device.runtime)")
-                    print("  State: \(device.state.rawValue)")
-                    print("")
+                    logInfo("\(device.name) (\(device.udid))")
+                    logDebug("  Runtime: \(device.runtime)  State: \(device.state.rawValue)")
                 }
+
+                logSeparator()
             } catch let error as SimulatorError {
                 throw CLIError.simulatorError(error)
             } catch {
-                throw CLIError.simulatorError(
-                    SimulatorError.commandFailed(message: error.localizedDescription)
-                )
+                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
             }
         }
     }
@@ -76,28 +69,22 @@ struct SimulatorCommand: AsyncParsableCommand {
         var quiet: Bool = false
         
         func run() async throws {
-            if quiet {
-                Logger.shared.setVerbosity(.quiet)
-            } else if verbose {
-                Logger.shared.setVerbosity(.verbose)
-            }
-            
+            applyVerbosity(quiet: quiet, verbose: verbose)
+
             let controller = SimulatorController(processRunner: ProcessRunner())
-            
+
             do {
-                if let foundDevice = try await controller.getDevice(byName: device) {
+                if let foundDevice = try await controller.getDevice(by: device) {
                     try await controller.boot(deviceID: foundDevice.udid)
-                    print("Successfully booted simulator: \(foundDevice.name)")
+                    logSuccess("Booted simulator: \(foundDevice.name)")
                 } else {
                     try await controller.boot(deviceID: device)
-                    print("Successfully booted simulator: \(device)")
+                    logSuccess("Booted simulator: \(device)")
                 }
             } catch let error as SimulatorError {
                 throw CLIError.simulatorError(error)
             } catch {
-                throw CLIError.simulatorError(
-                    SimulatorError.commandFailed(message: error.localizedDescription)
-                )
+                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
             }
         }
     }
@@ -118,28 +105,22 @@ struct SimulatorCommand: AsyncParsableCommand {
         var quiet: Bool = false
         
         func run() async throws {
-            if quiet {
-                Logger.shared.setVerbosity(.quiet)
-            } else if verbose {
-                Logger.shared.setVerbosity(.verbose)
-            }
-            
+            applyVerbosity(quiet: quiet, verbose: verbose)
+
             let controller = SimulatorController(processRunner: ProcessRunner())
-            
+
             do {
-                if let foundDevice = try await controller.getDevice(byName: device) {
+                if let foundDevice = try await controller.getDevice(by: device) {
                     try await controller.shutdown(deviceID: foundDevice.udid)
-                    print("Successfully shutdown simulator: \(foundDevice.name)")
+                    logSuccess("Shutdown simulator: \(foundDevice.name)")
                 } else {
                     try await controller.shutdown(deviceID: device)
-                    print("Successfully shutdown simulator: \(device)")
+                    logSuccess("Shutdown simulator: \(device)")
                 }
             } catch let error as SimulatorError {
                 throw CLIError.simulatorError(error)
             } catch {
-                throw CLIError.simulatorError(
-                    SimulatorError.commandFailed(message: error.localizedDescription)
-                )
+                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
             }
         }
     }

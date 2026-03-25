@@ -11,7 +11,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
     .package(url: "https://github.com/swiftlang/swift-subprocess.git", branch: "main"),
-    .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.0"),
+    .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.0")
   ],
   targets: [
     .executableTarget(
@@ -19,13 +19,14 @@ let package = Package(
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "Subprocess", package: "swift-subprocess"),
-        .product(name: "Yams", package: "Yams"),
+        .product(name: "Yams", package: "Yams")
       ],
       linkerSettings: [
         .unsafeFlags([
-          "-Xlinker", "-rpath",
+          "-Xlinker", 
+          "-rpath",
           "-Xlinker",
-          "/Applications/Xcode-26.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx",
+          "/Applications/Xcode-26.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx"
         ])
       ]
     ),
@@ -34,6 +35,6 @@ let package = Package(
       dependencies: [
         "xcode-cli"
       ]
-    ),
+    )
   ]
 )
