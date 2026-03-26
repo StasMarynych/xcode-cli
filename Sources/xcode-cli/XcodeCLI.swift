@@ -12,6 +12,8 @@ struct XCodeCLI: AsyncParsableCommand {
         subcommands: [
             BuildCommand.self,
             TestCommand.self,
+            BuildForTestingCommand.self,
+            TestWithoutBuildingCommand.self,
             RunCommand.self,
             ArchiveCommand.self,
             ExportCommand.self,

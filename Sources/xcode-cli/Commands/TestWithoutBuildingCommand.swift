@@ -1,10 +1,10 @@
 import ArgumentParser
 import Foundation
 
-struct RunCommand: AsyncParsableCommand {
+struct TestWithoutBuildingCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "run",
-        abstract: "Build and run the app on a simulator or device"
+        commandName: "test-without-building",
+        abstract: "Run tests for an Xcode project or workspace without rebuilding"
     )
 
     @Option(name: .long, help: "Path to App Spec YAML file")
@@ -25,8 +25,14 @@ struct RunCommand: AsyncParsableCommand {
     @Option(name: [.short, .long], help: "Destination (e.g., 'platform=iOS Simulator,name=iPhone 15,OS=17.0')")
     var destination: String?
 
-    @Flag(name: .long, help: "Wait for debugger to attach before launching")
-    var waitForDebugger: Bool = false
+    @Option(name: .long, help: "Specific test targets to run")
+    var testTargets: [String] = []
+
+    @Flag(name: .long, help: "Enable parallel testing")
+    var parallel: Bool = false
+
+    @Option(name: .long, help: "Number of parallel testing workers")
+    var parallelTestingWorkers: Int?
 
     @Option(name: .long, help: "Code signing identity")
     var signingIdentity: String?
@@ -62,12 +68,12 @@ struct RunCommand: AsyncParsableCommand {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
         let config = try resolveConfig(
-            spec: spec, 
+            spec: spec,
             flags: CommandFlags(
-                spec: spec, 
-                project: project, 
+                spec: spec,
+                project: project,
                 workspace: workspace,
-                scheme: scheme, 
+                scheme: scheme,
                 configuration: configuration,
                 destination: destination,
                 signingIdentity: signingIdentity,
@@ -76,28 +82,31 @@ struct RunCommand: AsyncParsableCommand {
                 provisioningProfileName: provisioningProfileName,
                 provisioningProfilePath: provisioningProfilePath,
                 teamID: teamID,
-                derivedDataPath: derivedDataPath
+                derivedDataPath: derivedDataPath,
+                testTargets: testTargets.isEmpty ? nil : testTargets,
+                parallelTesting: parallel ? true : nil,
+                parallelTestingWorkers: parallelTestingWorkers
             )
         )
 
-        logCommandContext(config, command: "Run")
+        logCommandContext(config, command: "Test without Building")
 
         let runner: ProcessRunnerProtocol = if let formatter { 
             FormattingProcessRunner(formatterPath: formatter) 
         } else {
             ProcessRunner()
-        } 
+        }
 
         let executor = CommandExecutor(processRunner: runner)
         let start = Date()
-        let result = try await executor.executeRun(config: config, waitForDebugger: waitForDebugger)
+        let result = try await executor.executeTestWithoutBuilding(config: config)
         let duration = Date().timeIntervalSince(start)
 
         logSeparator()
-        logSummary(steps: [("run", duration, result.isSuccess)])
+        logSummary(steps: [("test-without-building", duration, result.isSuccess)])
 
         if !result.isSuccess {
-            throw CLIError.buildError(.xcodebuildError(
+            throw CLIError.testError(.xcodebuildError(
                 exitCode: result.exitCode,
                 stderr: result.stderr
             ))

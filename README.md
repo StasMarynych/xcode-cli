@@ -445,8 +445,7 @@ xcode-cli build --spec base-spec.yaml --configuration Release
 
 ## Requirements
 
-- macOS 13.0+
-- Xcode 15.0+
+- macOS 26.0+
 - Swift 6.2+
 
 ## License

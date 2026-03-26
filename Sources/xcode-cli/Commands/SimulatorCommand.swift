@@ -29,8 +29,7 @@ struct SimulatorCommand: AsyncParsableCommand {
 
             let controller = SimulatorController(processRunner: ProcessRunner())
 
-            do {
-                let devices = try await controller.listDevices()
+            let devices = try await controller.listDevices()
 
                 if devices.isEmpty {
                     logInfo("No simulators found")
@@ -45,11 +44,6 @@ struct SimulatorCommand: AsyncParsableCommand {
                 }
 
                 logSeparator()
-            } catch let error as SimulatorError {
-                throw CLIError.simulatorError(error)
-            } catch {
-                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
-            }
         }
     }
     
@@ -73,19 +67,13 @@ struct SimulatorCommand: AsyncParsableCommand {
 
             let controller = SimulatorController(processRunner: ProcessRunner())
 
-            do {
-                if let foundDevice = try await controller.getDevice(by: device) {
+            if let foundDevice = try await controller.getDevice(by: device) {
                     try await controller.boot(deviceID: foundDevice.udid)
                     logSuccess("Booted simulator: \(foundDevice.name)")
                 } else {
                     try await controller.boot(deviceID: device)
                     logSuccess("Booted simulator: \(device)")
                 }
-            } catch let error as SimulatorError {
-                throw CLIError.simulatorError(error)
-            } catch {
-                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
-            }
         }
     }
     
@@ -109,18 +97,12 @@ struct SimulatorCommand: AsyncParsableCommand {
 
             let controller = SimulatorController(processRunner: ProcessRunner())
 
-            do {
-                if let foundDevice = try await controller.getDevice(by: device) {
-                    try await controller.shutdown(deviceID: foundDevice.udid)
-                    logSuccess("Shutdown simulator: \(foundDevice.name)")
-                } else {
-                    try await controller.shutdown(deviceID: device)
-                    logSuccess("Shutdown simulator: \(device)")
-                }
-            } catch let error as SimulatorError {
-                throw CLIError.simulatorError(error)
-            } catch {
-                throw CLIError.simulatorError(.commandFailed(message: error.localizedDescription))
+            if let foundDevice = try await controller.getDevice(by: device) {
+                try await controller.shutdown(deviceID: foundDevice.udid)
+                logSuccess("Shutdown simulator: \(foundDevice.name)")
+            } else {
+                try await controller.shutdown(deviceID: device)
+                logSuccess("Shutdown simulator: \(device)")
             }
         }
     }

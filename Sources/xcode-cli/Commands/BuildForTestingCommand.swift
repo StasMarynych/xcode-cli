@@ -1,10 +1,10 @@
 import ArgumentParser
 import Foundation
 
-struct RunCommand: AsyncParsableCommand {
+struct BuildForTestingCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "run",
-        abstract: "Build and run the app on a simulator or device"
+        commandName: "build-for-testing",
+        abstract: "Build an Xcode project or workspace for testing without running tests"
     )
 
     @Option(name: .long, help: "Path to App Spec YAML file")
@@ -24,9 +24,6 @@ struct RunCommand: AsyncParsableCommand {
 
     @Option(name: [.short, .long], help: "Destination (e.g., 'platform=iOS Simulator,name=iPhone 15,OS=17.0')")
     var destination: String?
-
-    @Flag(name: .long, help: "Wait for debugger to attach before launching")
-    var waitForDebugger: Bool = false
 
     @Option(name: .long, help: "Code signing identity")
     var signingIdentity: String?
@@ -62,12 +59,12 @@ struct RunCommand: AsyncParsableCommand {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
         let config = try resolveConfig(
-            spec: spec, 
+            spec: spec,
             flags: CommandFlags(
-                spec: spec, 
-                project: project, 
+                spec: spec,
+                project: project,
                 workspace: workspace,
-                scheme: scheme, 
+                scheme: scheme,
                 configuration: configuration,
                 destination: destination,
                 signingIdentity: signingIdentity,
@@ -80,7 +77,7 @@ struct RunCommand: AsyncParsableCommand {
             )
         )
 
-        logCommandContext(config, command: "Run")
+        logCommandContext(config, command: "Build for Testing")
 
         let runner: ProcessRunnerProtocol = if let formatter { 
             FormattingProcessRunner(formatterPath: formatter) 
@@ -90,11 +87,11 @@ struct RunCommand: AsyncParsableCommand {
 
         let executor = CommandExecutor(processRunner: runner)
         let start = Date()
-        let result = try await executor.executeRun(config: config, waitForDebugger: waitForDebugger)
+        let result = try await executor.executeBuildForTesting(config: config)
         let duration = Date().timeIntervalSince(start)
 
         logSeparator()
-        logSummary(steps: [("run", duration, result.isSuccess)])
+        logSummary(steps: [("build-for-testing", duration, result.isSuccess)])
 
         if !result.isSuccess {
             throw CLIError.buildError(.xcodebuildError(

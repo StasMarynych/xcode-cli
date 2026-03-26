@@ -7,11 +7,12 @@ class MockProcessRunner: ProcessRunnerProtocol {
     var lastExecutable: String?
     var lastArguments: [String]?
     var lastStreamOutput: Bool?
+
+    var responses: [(executable: String, stdout: String, stderr: String, exitCode: Int)] = []
     
     private let stdout: String
     private let stderr: String
     private let exitCode: Int
-    private var responses: [(executable: String, stdout: String, stderr: String, exitCode: Int)] = []
     private var callCount = 0
     
     init(stdout: String = "", stderr: String = "", exitCode: Int = 1) {

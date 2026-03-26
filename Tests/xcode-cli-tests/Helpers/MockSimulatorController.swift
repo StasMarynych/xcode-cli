@@ -34,7 +34,7 @@ class MockSimulatorControllerForTests: SimulatorControllerProtocol {
         return devices
     }
     
-    func boot(deviceID: String) async throws {
+    func boot(deviceID: String, launchSimulatorApp: Bool) async throws {
         bootCalled = true
         
         if shouldFailBoot {

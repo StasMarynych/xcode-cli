@@ -32,7 +32,6 @@ struct ExportCommand: AsyncParsableCommand {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
         let appSpec = try loadAppSpec(from: spec)
-        
         let merger = ConfigurationMerger()
         
         // For export, minimal configuration is required,
@@ -57,26 +56,21 @@ struct ExportCommand: AsyncParsableCommand {
         }
         
         let executor = CommandExecutor(processRunner: ProcessRunner())
-        
-        do {
-            let result = try await executor.executeExport(
-                archivePath: archivePath,
-                config: config
-            )
-            
-            logSeparator()
+        let start = Date()
 
-            if !result.isSuccess {
-                throw CLIError.archiveError(.xcodebuildError(
-                    exitCode: result.exitCode, 
-                    stderr: result.stderr
-                ))
-            }
-        } catch let error as CLIError {
-            throw error
-        } catch {
-            throw CLIError.archiveError(.exportFailed(
-                message: error.localizedDescription
+        let result = try await executor.executeExport(
+            archivePath: archivePath,
+            config: config
+        )
+        let duration = Date().timeIntervalSince(start)
+
+        logSeparator()
+        logSummary(steps: [("export", duration, result.isSuccess)])
+
+        if !result.isSuccess {
+            throw CLIError.archiveError(.xcodebuildError(
+                exitCode: result.exitCode,
+                stderr: result.stderr
             ))
         }
     }

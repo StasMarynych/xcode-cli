@@ -91,38 +91,25 @@ struct TestCommand: AsyncParsableCommand {
 
         logCommandContext(config, command: "Test")
 
-        let pipeline = try FormatterPipeline(formatterPath: formatter)
-        let executor = CommandExecutor(processRunner: ProcessRunner())
-        let start = Date()
-
-        if formatter != nil {
-            let result = try await pipeline.run(
-                xcodebuildArgs: executor.buildXcodeBuildArguments(action: .test, config: config)
-            )
-            let duration = Date().timeIntervalSince(start)
-
-            logSeparator()
-            logSummary(steps: [("scan", duration, result.isSuccess)])
-
-            if !result.isSuccess {
-                throw CLIError.testError(.xcodebuildError(
-                    exitCode: result.exitCode, 
-                    stderr: result.stderr
-                ))
-            }
+        let runner: ProcessRunnerProtocol = if let formatter { 
+            FormattingProcessRunner(formatterPath: formatter) 
         } else {
-            let result = try await executor.executeTest(config: config)
-            let duration = Date().timeIntervalSince(start)
+            ProcessRunner()
+        } 
 
-            logSeparator()
-            logSummary(steps: [("scan", duration, result.isSuccess)])
+        let executor = CommandExecutor(processRunner: runner)
+        let start = Date()
+        let result = try await executor.executeTest(config: config)
+        let duration = Date().timeIntervalSince(start)
 
-            if !result.isSuccess {
-                throw CLIError.testError(.xcodebuildError(
-                    exitCode: result.exitCode, 
-                    stderr: result.stderr
-                ))
-            }
+        logSeparator()
+        logSummary(steps: [("test", duration, result.isSuccess)])
+
+        if !result.isSuccess {
+            throw CLIError.testError(.xcodebuildError(
+                exitCode: result.exitCode,
+                stderr: result.stderr
+            ))
         }
     }
 }

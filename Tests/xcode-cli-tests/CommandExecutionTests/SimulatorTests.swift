@@ -161,7 +161,7 @@ struct SimulatorTests {
         let mockRunner = MockProcessRunner(stdout: "", exitCode: 0)
         let controller = SimulatorController(processRunner: mockRunner)
         
-        try await controller.boot(deviceID: "12345678-1234-1234-1234-123456789ABC")
+        try await controller.boot(deviceID: "12345678-1234-1234-1234-123456789ABC", launchSimulatorApp: false)
         
         #expect(mockRunner.lastExecutable == "xcrun")
         #expect(mockRunner.lastArguments?.contains("boot") == true)

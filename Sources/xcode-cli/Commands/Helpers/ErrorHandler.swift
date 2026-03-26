@@ -15,9 +15,12 @@ struct ErrorHandler {
             try await block()
         } catch let error as CLIError {
             handle(error, verbose: verbose)
+        } catch let error as RunError {
+            handle(.simulatorError(error.toSimulatorError()), verbose: verbose)
+        } catch let error as SimulatorError {
+            handle(.simulatorError(error), verbose: verbose)
         } catch {
-            let cliError = CLIError.internalError(message: error.localizedDescription)
-            handle(cliError, verbose: verbose)
+            handle(.internalError(message: error.localizedDescription), verbose: verbose)
         }
     }
 }

@@ -6,6 +6,8 @@ protocol CommandExecutorProtocol {
     func executeArchive(config: Configuration) async throws -> CommandResult
     func executeExport(archivePath: String, config: Configuration) async throws -> CommandResult
     func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> CommandResult
+    func executeBuildForTesting(config: Configuration) async throws -> CommandResult
+    func executeTestWithoutBuilding(config: Configuration) async throws -> CommandResult
 }
 
 enum XcodeBuildAction {
@@ -14,6 +16,8 @@ enum XcodeBuildAction {
     case archive
     case exportArchive
     case run
+    case buildForTesting
+    case testWithoutBuilding
 }
 
 enum RunError: Error, CustomStringConvertible {
@@ -76,6 +80,34 @@ struct CommandExecutor: CommandExecutorProtocol {
         return result
     }
     
+    func executeBuildForTesting(config: Configuration) async throws -> CommandResult {
+        let arguments = buildXcodeBuildArguments(action: .buildForTesting, config: config)
+        let result = try await processRunner.run(
+            executable: "xcodebuild",
+            arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
+            streamOutput: true
+        )
+
+        return result
+    }
+
+    func executeTestWithoutBuilding(config: Configuration) async throws -> CommandResult {
+        let arguments = buildXcodeBuildArguments(action: .testWithoutBuilding, config: config)
+        let result = try await processRunner.run(
+            executable: "xcodebuild",
+            arguments: arguments,
+            environment: [
+                "NSUnbufferedIO": "YES"
+            ],
+            streamOutput: true
+        )
+
+        return result
+    }
+
     func executeArchive(config: Configuration) async throws -> CommandResult {
         let arguments = buildXcodeBuildArguments(action: .archive, config: config)
         let result = try await processRunner.run(
@@ -268,6 +300,27 @@ struct CommandExecutor: CommandExecutorProtocol {
             arguments.append("-exportArchive")
         case .run:
             arguments.append("build")
+        case .buildForTesting:
+            arguments.append("build-for-testing")
+        case .testWithoutBuilding:
+            arguments.append("test-without-building")
+            
+            if !config.testTargets.isEmpty {
+                for target in config.testTargets {
+                    arguments.append("-only-testing")
+                    arguments.append(target)
+                }
+            }
+            
+            if config.parallelTesting {
+                arguments.append("-parallel-testing-enabled")
+                arguments.append("YES")
+                
+                if let workers = config.parallelTestingWorkers {
+                    arguments.append("-parallel-testing-worker-count")
+                    arguments.append("\(workers)")
+                }
+            }
         }
         
         if let signing = config.signing {

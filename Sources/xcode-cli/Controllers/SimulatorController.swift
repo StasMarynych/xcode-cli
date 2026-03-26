@@ -2,12 +2,18 @@ import Foundation
 
 protocol SimulatorControllerProtocol {
     func listDevices() async throws -> [SimulatorDevice]
-    func boot(deviceID: String) async throws
+    func boot(deviceID: String, launchSimulatorApp: Bool) async throws
     func shutdown(deviceID: String) async throws
     func getDevice(by id: String) async throws -> SimulatorDevice?
     func installApp(deviceID: String, appPath: String) async throws
     func launchApp(deviceID: String, bundleID: String, waitForDebugger: Bool) async throws -> LaunchResult
     func terminateApp(deviceID: String, bundleID: String) async throws
+}
+
+extension SimulatorControllerProtocol {
+    func boot(deviceID: String) async throws {
+        try await boot(deviceID: deviceID, launchSimulatorApp: true)
+    }
 }
 
 struct SimulatorController: SimulatorControllerProtocol {
@@ -33,7 +39,7 @@ struct SimulatorController: SimulatorControllerProtocol {
         return try parseDeviceList(from: result.stdout)
     }
     
-    func boot(deviceID: String) async throws {
+    func boot(deviceID: String, launchSimulatorApp: Bool) async throws {
         let device = try? await getDevice(by: deviceID)
 
         if let device, device.state == .booted || device.state == .booting {
@@ -54,7 +60,9 @@ struct SimulatorController: SimulatorControllerProtocol {
             )
         }
 
-        try await openSimulatorApp()
+        if launchSimulatorApp {
+            try await openSimulatorApp()
+        }
     }
 
     func shutdown(deviceID: String) async throws {

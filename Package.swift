@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
   name: "xcode-cli",
   platforms: [
-    .macOS(.v13)
+    .macOS(.v26)
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.7.0"),
@@ -20,14 +20,6 @@ let package = Package(
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "Subprocess", package: "swift-subprocess"),
         .product(name: "Yams", package: "Yams")
-      ],
-      linkerSettings: [
-        .unsafeFlags([
-          "-Xlinker", 
-          "-rpath",
-          "-Xlinker",
-          "/Applications/Xcode-26.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx"
-        ])
       ]
     ),
     .testTarget(
@@ -36,5 +28,6 @@ let package = Package(
         "xcode-cli"
       ]
     )
-  ]
+  ],
+  swiftLanguageModes: [.v6]
 )
