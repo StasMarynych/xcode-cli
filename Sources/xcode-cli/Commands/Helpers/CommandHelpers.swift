@@ -63,11 +63,6 @@ func applyVerbosity(quiet: Bool, verbose: Bool) {
     }
 }
 
-func resolveDestinationString(simulator: String?, device: String?, os: String?) throws -> String {
-    let destination = try DestinationResolver().resolve(simulator: simulator, device: device, os: os)
-    return destination.map { CommandExecutor.formatDestinationString($0) } ?? "generic/platform=iOS Simulator"
-}
-
 /// Logs a fastlane-style context table showing the resolved build configuration
 func logCommandContext(_ config: Configuration, command: String) {
     logSeparator(title: command)

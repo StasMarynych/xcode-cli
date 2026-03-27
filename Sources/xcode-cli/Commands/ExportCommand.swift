@@ -39,7 +39,7 @@ struct ExportCommand: AsyncParsableCommand {
         let dummyFlags = CommandFlags(
             spec: spec,
             scheme: "DummyScheme",  // Required but not used for export
-            destination: "generic/platform=iOS",  // Required but not used for export
+            destination: .generic(platform: "iOS"),  // Required but not used for export
             exportPath: exportPath,
             exportMethod: exportMethod,
             exportOptionsPlist: exportOptionsPlist

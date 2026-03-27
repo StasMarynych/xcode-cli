@@ -13,7 +13,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -29,7 +29,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             workspace: "MyApp.xcworkspace",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -46,7 +46,7 @@ struct FlagsOnlyExecutionTests {
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
             configuration: "Debug",
-            destination: "platform=iOS Simulator,name=iPhone 15",
+            destination: .simulator(name: "iPhone 15", os: "latest"),
             signingIdentity: "Apple Development",
             signingStyle: "automatic",
             teamID: "TEAM123",
@@ -80,7 +80,7 @@ struct FlagsOnlyExecutionTests {
     func flagsOnlyExecutionMissingSchemeThrowsError() throws {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         #expect(throws: MergerError.missingRequiredField("scheme")) {
@@ -92,7 +92,7 @@ struct FlagsOnlyExecutionTests {
     func flagsOnlyExecutionMissingProjectAndWorkspaceThrowsError() throws {
         let flags = CommandFlags(
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         #expect(throws: MergerError.missingRequiredField("project_path or workspace_path")) {
@@ -105,7 +105,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -118,7 +118,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -131,7 +131,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -144,7 +144,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             signingIdentity: "Apple Distribution",
             signingStyle: "manual",
             provisioningProfilePath: "/path/to/profile.mobileprovision",
@@ -165,7 +165,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: nil, flags: flags)
@@ -178,7 +178,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             signingStyle: "invalid-style"
         )
         
@@ -192,7 +192,7 @@ struct FlagsOnlyExecutionTests {
         let flags = CommandFlags(
             project: "MyApp.xcodeproj",
             scheme: "MyScheme",
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             exportMethod: "invalid-method"
         )
         

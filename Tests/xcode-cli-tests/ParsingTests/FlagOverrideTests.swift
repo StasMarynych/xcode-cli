@@ -17,7 +17,7 @@ struct FlagOverrideTests {
         
         let flags = CommandFlags(
             project: "FlagProject.xcodeproj",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: spec, flags: flags)
@@ -35,7 +35,7 @@ struct FlagOverrideTests {
         
         let flags = CommandFlags(
             workspace: "FlagWorkspace.xcworkspace",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: spec, flags: flags)
@@ -53,7 +53,7 @@ struct FlagOverrideTests {
         
         let flags = CommandFlags(
             scheme: "FlagScheme",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: spec, flags: flags)
@@ -71,7 +71,7 @@ struct FlagOverrideTests {
         
         let flags = CommandFlags(
             configuration: "Release",
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: spec, flags: flags)
@@ -90,7 +90,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             signingIdentity: "FlagIdentity"
         )
         
@@ -110,7 +110,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             teamID: "FLAG456"
         )
         
@@ -130,7 +130,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             signingStyle: "manual"
         )
         
@@ -150,7 +150,7 @@ struct FlagOverrideTests {
         )
 
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             provisioningProfilePath: "/flag/path.mobileprovision"
         )
 
@@ -168,7 +168,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             testTargets: ["FlagTest1", "FlagTest2", "FlagTest3"]
         )
         
@@ -186,7 +186,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             archivePath: "/flag/archive.xcarchive"
         )
         
@@ -204,7 +204,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             exportPath: "/flag/export"
         )
         
@@ -222,7 +222,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             exportMethod: "app-store"
         )
         
@@ -240,7 +240,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             exportOptionsPlist: "/flag/ExportOptions.plist"
         )
         
@@ -258,7 +258,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             derivedDataPath: "/flag/DerivedData"
         )
         
@@ -276,7 +276,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             parallelTesting: true
         )
         
@@ -294,7 +294,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             parallelTestingWorkers: 8
         )
         
@@ -323,7 +323,7 @@ struct FlagOverrideTests {
             project: "FlagProject.xcodeproj",
             scheme: "FlagScheme",
             configuration: "Release",
-            destination: "platform=iOS Simulator",
+            destination: .generic(platform: "iOS Simulator"),
             signingIdentity: "FlagIdentity",
             signingStyle: "manual",
             teamID: "FLAG456",
@@ -360,7 +360,7 @@ struct FlagOverrideTests {
         )
         
         let flags = CommandFlags(
-            destination: "platform=iOS Simulator"
+            destination: .generic(platform: "iOS Simulator")
         )
         
         let config = try merger.merge(spec: spec, flags: flags)

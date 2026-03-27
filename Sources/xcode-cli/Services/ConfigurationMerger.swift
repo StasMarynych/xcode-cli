@@ -1,9 +1,5 @@
 import Foundation
 
-protocol ConfigurationMergerProtocol {
-    func merge(spec: AppSpec?, flags: CommandFlags) throws -> Configuration
-}
-
 enum MergerError: Error, Equatable {
     case missingRequiredField(String)
     case invalidCodeSignStyle(String)
@@ -11,7 +7,7 @@ enum MergerError: Error, Equatable {
     case autoDetectionFailed(String)
 }
 
-struct ConfigurationMerger: ConfigurationMergerProtocol {
+struct ConfigurationMerger {
     func merge(spec: AppSpec?, flags: CommandFlags) throws -> Configuration {
         let projectPath = flags.project ?? spec?.projectPath
         let workspacePath = flags.workspace ?? spec?.workspacePath
@@ -25,7 +21,7 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         }
         
         let buildConfiguration = flags.configuration ?? spec?.buildConfiguration ?? "Release"
-        let destination = try parseDestination(flags.destination)
+        let destination = flags.destination ?? .generic(platform: "iOS Simulator")
         let signing = try mergeSigningConfiguration(spec: spec, flags: flags)
         let testTargets = flags.testTargets ?? spec?.testTargets ?? []
         let archivePath = flags.archivePath ?? spec?.archivePath
@@ -89,39 +85,6 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
             return ProvisioningProfile(path: path)
         }
         return spec?.signing?.provisioningProfile
-    }
-    
-    private func parseDestination(_ destinationString: String?) throws -> Destination {
-        guard let destString = destinationString else {
-            return .generic(platform: "iOS Simulator")
-        }
-
-        if destString.contains("platform=") {
-            let components = destString.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-            var name: String?
-            var os: String?
-            var platform: String?
-
-            for component in components {
-                if component.hasPrefix("name=") {
-                    name = String(component.dropFirst(5))
-                } else if component.hasPrefix("OS=") {
-                    os = String(component.dropFirst(3))
-                } else if component.hasPrefix("platform=") {
-                    platform = String(component.dropFirst(9))
-                }
-            }
-
-            if let platform, platform.contains("Simulator"), let name {
-                return .simulator(name: name, os: os ?? "latest")
-            } else if let name {
-                return .device(name: name)
-            } else if let platform {
-                return .generic(platform: platform)
-            }
-        }
-
-        return .simulator(name: destString, os: "latest")
     }
     
     private func parseCodeSignStyle(_ styleString: String?) throws -> CodeSignStyle? {

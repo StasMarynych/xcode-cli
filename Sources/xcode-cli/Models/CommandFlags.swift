@@ -6,7 +6,7 @@ struct CommandFlags: Equatable {
     var workspace: String?
     var scheme: String?
     var configuration: String?
-    var destination: String?
+    var destination: Destination?
     var signingIdentity: String?
     var signingStyle: String?
     var provisioningProfilePath: String?
@@ -26,7 +26,7 @@ struct CommandFlags: Equatable {
         workspace: String? = nil,
         scheme: String? = nil,
         configuration: String? = nil,
-        destination: String? = nil,
+        destination: Destination? = nil,
         signingIdentity: String? = nil,
         signingStyle: String? = nil,
         provisioningProfilePath: String? = nil,

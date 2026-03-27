@@ -16,12 +16,46 @@ public enum Destination: Codable, Equatable {
     case simulator(name: String, os: String)
     case device(name: String)
     case generic(platform: String)
+
+    var value: String {
+        switch self {
+        case let .simulator(name, os):
+            if os == "latest" {
+                "platform=iOS Simulator,name=\(name)"
+            } else {
+                "platform=iOS Simulator,name=\(name),OS=\(os)"
+            } 
+        case let .device(name):
+            "platform=iOS,name=\(name)"
+        case let .generic(platform):
+            "generic/platform=\(platform)"
+        }
+    }
     
     enum CodingKeys: String, CodingKey {
         case type
         case name
         case os
         case platform
+    }
+
+    public init(simulator: String?, device: String?, os: String?) throws {
+        if simulator != nil && device != nil {
+            throw DestinationResolverError.conflictingFlags
+        }
+        if os != nil && simulator == nil {
+            throw DestinationResolverError.osWithoutSimulator
+        }
+        if let simulator {
+            self = .simulator(name: simulator, os: os ?? "latest")
+            return
+        }
+        if let device {
+            self = .device(name: device)
+            return
+        }
+
+        self = .generic(platform: "iOS Simulator")
     }
     
     public init(from decoder: Decoder) throws {

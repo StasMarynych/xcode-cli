@@ -1,15 +1,5 @@
 import Foundation
 
-protocol CommandExecutorProtocol {
-    func executeBuild(config: Configuration) async throws -> CommandResult
-    func executeTest(config: Configuration) async throws -> CommandResult
-    func executeArchive(config: Configuration) async throws -> CommandResult
-    func executeExport(archivePath: String, config: Configuration) async throws -> CommandResult
-    func executeRun(config: Configuration, waitForDebugger: Bool) async throws -> CommandResult
-    func executeBuildForTesting(config: Configuration) async throws -> CommandResult
-    func executeTestWithoutBuilding(config: Configuration) async throws -> CommandResult
-}
-
 enum XcodeBuildAction {
     case build
     case test
@@ -40,7 +30,7 @@ enum RunError: Error, CustomStringConvertible {
     }
 }
 
-struct CommandExecutor: CommandExecutorProtocol {
+struct CommandExecutor {
     private let processRunner: ProcessRunnerProtocol
     private let simulatorController: SimulatorControllerProtocol
     
@@ -220,38 +210,7 @@ struct CommandExecutor: CommandExecutorProtocol {
             stderr: ""
         )
     }
-    
-    private func extractAppBundlePath(from buildOutput: String) -> String? {
-        let lines = buildOutput.components(separatedBy: .newlines)
-        
-        for line in lines {
-            if line.contains(".app") && !line.contains(".appex") {
-                if let range = line.range(of: #"(/[^\s]+\.app)"#, options: .regularExpression) {
-                    let path = String(line[range])
-                    return path.trimmingCharacters(in: CharacterSet(charactersIn: "()"))
-                }
-            }
-        }
-        
-        return nil
-    }
-    
-    private func extractBundleID(from appPath: String) async throws -> String? {
-        let infoPlistPath = "\(appPath)/Info.plist"
-        
-        let result = try await processRunner.run(
-            executable: "/usr/libexec/PlistBuddy",
-            arguments: ["-c", "Print :CFBundleIdentifier", infoPlistPath],
-            streamOutput: false
-        )
-        
-        guard result.isSuccess else {
-            return nil
-        }
-        
-        return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
+
     func buildXcodeBuildArguments(action: XcodeBuildAction, config: Configuration) -> [String] {
         var arguments: [String] = []
         
@@ -270,7 +229,7 @@ struct CommandExecutor: CommandExecutorProtocol {
         arguments.append(config.buildConfiguration)
         
         arguments.append("-destination")
-        arguments.append(CommandExecutor.formatDestinationString(config.destination))
+        arguments.append(config.destination.value)
         
         switch action {
         case .build:
@@ -365,17 +324,34 @@ struct CommandExecutor: CommandExecutorProtocol {
         return arguments
     }
     
-    static func formatDestinationString(_ destination: Destination) -> String {
-        switch destination {
-        case let .simulator(name, os):
-            if os == "latest" {
-                return "platform=iOS Simulator,name=\(name)"
+    private func extractAppBundlePath(from buildOutput: String) -> String? {
+        let lines = buildOutput.components(separatedBy: .newlines)
+        
+        for line in lines {
+            if line.contains(".app") && !line.contains(".appex") {
+                if let range = line.range(of: #"(/[^\s]+\.app)"#, options: .regularExpression) {
+                    let path = String(line[range])
+                    return path.trimmingCharacters(in: CharacterSet(charactersIn: "()"))
+                }
             }
-            return "platform=iOS Simulator,name=\(name),OS=\(os)"
-        case let .device(name):
-            return "platform=iOS,name=\(name)"
-        case let .generic(platform):
-            return "generic/platform=\(platform)"
         }
+        
+        return nil
+    }
+    
+    private func extractBundleID(from appPath: String) async throws -> String? {
+        let infoPlistPath = "\(appPath)/Info.plist"
+        
+        let result = try await processRunner.run(
+            executable: "/usr/libexec/PlistBuddy",
+            arguments: ["-c", "Print :CFBundleIdentifier", infoPlistPath],
+            streamOutput: false
+        )
+        
+        guard result.isSuccess else {
+            return nil
+        }
+        
+        return result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

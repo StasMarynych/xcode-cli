@@ -72,7 +72,7 @@ struct FormattingProcessRunner: ProcessRunnerProtocol, Sendable {
                 let trimmed = line.trimmingCharacters(in: .newlines)
                 guard !trimmed.trimmingCharacters(in: .whitespaces).isEmpty else { continue }
 
-                let phase = Self.detectPhase(in: trimmed)
+                let phase = detectPhase(in: trimmed)
                 if let phase, phase != lastPhase {
                     if lastPhase != nil {
                         FileHandle.standardOutput.write(Data("\n".utf8))
@@ -98,7 +98,7 @@ struct FormattingProcessRunner: ProcessRunnerProtocol, Sendable {
         }
     }
 
-    private static func detectPhase(in line: String) -> String? {
+    private func detectPhase(in line: String) -> String? {
         for keyword in phaseKeywords where line.contains(keyword) {
             return keyword
         }

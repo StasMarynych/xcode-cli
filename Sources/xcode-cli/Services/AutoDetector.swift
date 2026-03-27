@@ -4,14 +4,9 @@ protocol FileManagerProtocol {
     func contentsOfDirectory(atPath path: String) throws -> [String]
 }
 
-protocol AutoDetectorProtocol {
-    func detectProjectOrWorkspace(in directory: String) throws -> ProjectReference
-    func detectScheme(for reference: ProjectReference) async throws -> String
-}
-
 extension FileManager: FileManagerProtocol {}
 
-struct AutoDetector: AutoDetectorProtocol {
+struct AutoDetector {
     var fileManager: FileManagerProtocol = FileManager.default
     var schemeListService: SchemeListServiceProtocol = XcodebuildSchemeListService()
 

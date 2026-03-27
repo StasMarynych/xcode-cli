@@ -67,7 +67,7 @@ struct TestWithoutBuildingCommand: AsyncParsableCommand {
                 spec: spec,
                 scheme: scheme,
                 configuration: configuration,
-                destination: try resolveDestinationString(simulator: simulator, device: device, os: os),
+                destination: try Destination(simulator: simulator, device: device, os: os),
                 signingIdentity: signingIdentity,
                 signingStyle: signingStyle,
                 provisioningProfilePath: provisioningProfile,

@@ -1,10 +1,6 @@
 import Foundation
 
-public protocol ConfigurationValidatorProtocol {
-    func validate(_ spec: AppSpec) throws
-}
-
-public struct ConfigurationValidator: ConfigurationValidatorProtocol {
+public struct ConfigurationValidator {
     public init() {}
     
     public func validate(_ spec: AppSpec) throws {

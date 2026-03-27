@@ -1,12 +1,7 @@
 import Foundation
 import Yams
 
-public protocol YAMLParserProtocol {
-    func parse(fileURL: URL) throws -> AppSpec
-    func serialize(_ spec: AppSpec) throws -> String
-}
-
-public struct YAMLParser: YAMLParserProtocol {
+public struct YAMLParser {
     public init() {}
     
     public func parse(fileURL: URL) throws -> AppSpec {

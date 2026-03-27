@@ -18,7 +18,7 @@ final class Logger: @unchecked Sendable {
     /// Manager for directing output to appropriate streams
     private let streamManager: StreamManager
 
-    private static let timestampFormatter: DateFormatter = {
+    private let timestampFormatter: DateFormatter = {
         let fmt = DateFormatter()
         fmt.dateFormat = "HH:mm:ss"
         return fmt
@@ -173,7 +173,7 @@ final class Logger: @unchecked Sendable {
 
     private func currentTimestamp() -> String? {
         guard timestampsEnabled else { return nil }
-        return "[\(Logger.timestampFormatter.string(from: Date()))]"
+        return "[\(timestampFormatter.string(from: Date()))]"
     }
 
     private func log(_ message: String, level: LogLevel, prefix: String?) {
