@@ -6,6 +6,7 @@ struct StreamManager {
     /// - Parameter message: The message to write
     func writeToStderr(_ message: String) {
         let messageWithNewline = ensureNewline(message)
+        
         if let data = messageWithNewline.data(using: .utf8) {
             FileHandle.standardError.write(data)
         }

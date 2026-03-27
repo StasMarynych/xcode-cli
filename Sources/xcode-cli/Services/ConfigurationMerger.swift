@@ -8,6 +8,7 @@ enum MergerError: Error, Equatable {
     case missingRequiredField(String)
     case invalidCodeSignStyle(String)
     case invalidExportMethod(String)
+    case autoDetectionFailed(String)
 }
 
 struct ConfigurationMerger: ConfigurationMergerProtocol {
@@ -60,8 +61,6 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         let hasSpecSigning = spec?.signing != nil
         let hasFlagSigning = flags.signingIdentity != nil ||
         flags.signingStyle != nil ||
-        flags.provisioningProfileUUID != nil ||
-        flags.provisioningProfileName != nil ||
         flags.provisioningProfilePath != nil ||
         flags.teamID != nil
         
@@ -86,21 +85,10 @@ struct ConfigurationMerger: ConfigurationMergerProtocol {
         spec: AppSpec?,
         flags: CommandFlags
     ) throws -> ProvisioningProfile? {
-        let flagUUID = flags.provisioningProfileUUID
-        let flagName = flags.provisioningProfileName
-        let flagPath = flags.provisioningProfilePath
-        
-        let specProfile = spec?.signing?.provisioningProfile
-        
-        if flagUUID != nil || flagName != nil || flagPath != nil {
-            return ProvisioningProfile(
-                uuid: flagUUID,
-                name: flagName,
-                path: flagPath
-            )
+        if let path = flags.provisioningProfilePath {
+            return ProvisioningProfile(path: path)
         }
-        
-        return specProfile
+        return spec?.signing?.provisioningProfile
     }
     
     private func parseDestination(_ destinationString: String?) throws -> Destination {

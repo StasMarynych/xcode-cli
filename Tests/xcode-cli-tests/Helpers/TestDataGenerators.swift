@@ -4,12 +4,52 @@ import Foundation
 
 /// Generators for property-based testing of AppSpec configurations
 enum AppSpecGenerator {
+    static func randomWithScheme() -> AppSpec {
+        let useProject = Bool.random()
+        let projectPath = useProject ? randomPath(extension: "xcodeproj") : nil
+        let workspacePath = useProject ? nil : randomPath(extension: "xcworkspace")
+
+        let scheme = randomScheme()
+        let buildConfiguration = Bool.random() ? randomBuildConfiguration() : nil
+        let signing = randomSigning()
+        let testTargets = Bool.random() ? randomTestTargets() : nil
+        let archivePath = Bool.random() ? randomPath(extension: "xcarchive") : nil
+        let exportPath = Bool.random() ? randomPath(extension: nil) : nil
+        let exportMethod = Bool.random() ? randomExportMethod() : nil
+        let exportOptionsPlist = Bool.random() ? randomPath(extension: "plist") : nil
+        let buildOutputPath = Bool.random() ? randomPath(extension: nil) : nil
+
+        let parallelTesting = Bool.random() ? Bool.random() : nil
+        let parallelTestingWorkers: Int?
+        if parallelTesting == true && Bool.random() {
+            parallelTestingWorkers = Int.random(in: 1...16)
+        } else {
+            parallelTestingWorkers = nil
+        }
+
+        return AppSpec(
+            projectPath: projectPath,
+            workspacePath: workspacePath,
+            scheme: scheme,
+            buildConfiguration: buildConfiguration,
+            signing: signing,
+            testTargets: testTargets,
+            archivePath: archivePath,
+            exportPath: exportPath,
+            exportMethod: exportMethod,
+            exportOptionsPlist: exportOptionsPlist,
+            buildOutputPath: buildOutputPath,
+            parallelTesting: parallelTesting,
+            parallelTestingWorkers: parallelTestingWorkers
+        )
+    }
+
     static func random() -> AppSpec {
         let useProject = Bool.random()
         let projectPath = useProject ? randomPath(extension: "xcodeproj") : nil
         let workspacePath = useProject ? nil : randomPath(extension: "xcworkspace")
         
-        let scheme = randomScheme()
+        let scheme: String? = Bool.random() ? randomScheme() : nil
         let buildConfiguration = Bool.random() ? randomBuildConfiguration() : nil
         let signing = randomSigning()
         let testTargets = Bool.random() ? randomTestTargets() : nil

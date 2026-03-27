@@ -139,46 +139,6 @@ struct FlagOverrideTests {
         #expect(config.signing?.style == .manual)
     }
     
-    @Test("Flag override priority for provisioning profile UUID")
-    func flagOverridePriorityProvisioningProfileUUID() throws {
-        let spec = AppSpec(
-            projectPath: "Test.xcodeproj",
-            scheme: "TestScheme",
-            signing: SigningConfiguration(
-                provisioningProfile: ProvisioningProfile(uuid: "spec-uuid")
-            )
-        )
-        
-        let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
-            provisioningProfileUUID: "flag-uuid"
-        )
-        
-        let config = try merger.merge(spec: spec, flags: flags)
-        
-        #expect(config.signing?.provisioningProfile?.uuid == "flag-uuid")
-    }
-    
-    @Test("Flag override priority for provisioning profile name")
-    func flagOverridePriorityProvisioningProfileName() throws {
-        let spec = AppSpec(
-            projectPath: "Test.xcodeproj",
-            scheme: "TestScheme",
-            signing: SigningConfiguration(
-                provisioningProfile: ProvisioningProfile(name: "SpecProfile")
-            )
-        )
-        
-        let flags = CommandFlags(
-            destination: "platform=iOS Simulator",
-            provisioningProfileName: "FlagProfile"
-        )
-        
-        let config = try merger.merge(spec: spec, flags: flags)
-        
-        #expect(config.signing?.provisioningProfile?.name == "FlagProfile")
-    }
-    
     @Test("Flag override priority for provisioning profile path")
     func flagOverridePriorityProvisioningProfilePath() throws {
         let spec = AppSpec(
@@ -188,14 +148,14 @@ struct FlagOverrideTests {
                 provisioningProfile: ProvisioningProfile(path: "/spec/path.mobileprovision")
             )
         )
-        
+
         let flags = CommandFlags(
             destination: "platform=iOS Simulator",
             provisioningProfilePath: "/flag/path.mobileprovision"
         )
-        
+
         let config = try merger.merge(spec: spec, flags: flags)
-        
+
         #expect(config.signing?.provisioningProfile?.path == "/flag/path.mobileprovision")
     }
     

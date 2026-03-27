@@ -113,6 +113,8 @@ public struct ErrorFormatter {
             "Use either 'automatic' or 'manual' for signing.style"
         case .mergerError:
             "Check your configuration values and ensure all required fields are present"
+        case .autoDetectionFailed:
+            "Create a spec file or run from your project directory, or use --project/--workspace flags"
         }
     }
     

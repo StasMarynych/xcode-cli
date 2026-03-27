@@ -15,6 +15,7 @@ public enum ConfigurationError: Error, Equatable {
     case multipleProvisioningProfileFieldsSpecified
     case invalidCodeSignStyle(style: String)
     case mergerError(message: String)
+    case autoDetectionFailed(String)
 }
 
 extension ConfigurationError: CustomStringConvertible {
@@ -48,6 +49,8 @@ extension ConfigurationError: CustomStringConvertible {
             "Invalid code sign style: \(style)"
         case let .mergerError(message):
             message
+        case let .autoDetectionFailed(message):
+            message
         }
     }
     
@@ -78,6 +81,18 @@ extension ConfigurationError: CustomStringConvertible {
             nil
         }
     }
+}
+
+public enum AutoDetectionError: Error, Equatable {
+    case multipleProjectsFound([String])
+    case noProjectFound
+    case multipleSchemesFound([String])
+    case noSchemeFound
+}
+
+public enum DestinationResolverError: Error, Equatable {
+    case conflictingFlags
+    case osWithoutSimulator
 }
 
 public enum BuildError: Error, Equatable {

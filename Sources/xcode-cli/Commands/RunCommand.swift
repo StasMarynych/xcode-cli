@@ -10,23 +10,26 @@ struct RunCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to App Spec YAML file")
     var spec: String?
 
-    @Option(name: .long, help: "Project file path (.xcodeproj)")
-    var project: String?
-
-    @Option(name: .long, help: "Workspace file path (.xcworkspace)")
-    var workspace: String?
-
     @Option(name: [.short, .long], help: "Scheme name")
     var scheme: String?
 
     @Option(name: [.short, .long], help: "Build configuration (Debug, Release, etc.)")
     var configuration: String?
 
-    @Option(name: [.short, .long], help: "Destination (e.g., 'platform=iOS Simulator,name=iPhone 15,OS=17.0')")
-    var destination: String?
+    @Option(name: .long, help: "Simulator name (e.g. 'iPhone 15')")
+    var simulator: String?
+
+    @Option(name: .long, help: "Physical device name")
+    var device: String?
+
+    @Option(name: .long, help: "OS version for simulator (e.g. '17.0')")
+    var os: String?
 
     @Flag(name: .long, help: "Wait for debugger to attach before launching")
     var waitForDebugger: Bool = false
+
+    @Option(name: .long, help: "Derived data path")
+    var derivedDataPath: String?
 
     @Option(name: .long, help: "Code signing identity")
     var signingIdentity: String?
@@ -34,20 +37,14 @@ struct RunCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Code signing style (automatic or manual)")
     var signingStyle: String?
 
-    @Option(name: .long, help: "Provisioning profile UUID")
-    var provisioningProfileUUID: String?
-
-    @Option(name: .long, help: "Provisioning profile name")
-    var provisioningProfileName: String?
-
-    @Option(name: .long, help: "Provisioning profile path")
-    var provisioningProfilePath: String?
-
     @Option(name: .long, help: "Development team ID")
     var teamID: String?
 
-    @Option(name: .long, help: "Derived data path")
-    var derivedDataPath: String?
+    @Option(name: .long, help: "Provisioning profile path")
+    var provisioningProfile: String?
+
+    @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
+    var formatter: String?
 
     @Flag(name: .long, help: "Enable verbose output")
     var verbose: Bool = false
@@ -55,26 +52,19 @@ struct RunCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Suppress non-essential output")
     var quiet: Bool = false
 
-    @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
-    var formatter: String?
-
     func run() async throws {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
-        let config = try resolveConfig(
-            spec: spec, 
+        let config = try await resolveConfig(
+            spec: spec,
             flags: CommandFlags(
-                spec: spec, 
-                project: project, 
-                workspace: workspace,
-                scheme: scheme, 
+                spec: spec,
+                scheme: scheme,
                 configuration: configuration,
-                destination: destination,
+                destination: try resolveDestinationString(simulator: simulator, device: device, os: os),
                 signingIdentity: signingIdentity,
                 signingStyle: signingStyle,
-                provisioningProfileUUID: provisioningProfileUUID,
-                provisioningProfileName: provisioningProfileName,
-                provisioningProfilePath: provisioningProfilePath,
+                provisioningProfilePath: provisioningProfile,
                 teamID: teamID,
                 derivedDataPath: derivedDataPath
             )
@@ -82,11 +72,11 @@ struct RunCommand: AsyncParsableCommand {
 
         logCommandContext(config, command: "Run")
 
-        let runner: ProcessRunnerProtocol = if let formatter { 
-            FormattingProcessRunner(formatterPath: formatter) 
+        let runner: ProcessRunnerProtocol = if let formatter {
+            FormattingProcessRunner(formatterPath: formatter)
         } else {
             ProcessRunner()
-        } 
+        }
 
         let executor = CommandExecutor(processRunner: runner)
         let start = Date()

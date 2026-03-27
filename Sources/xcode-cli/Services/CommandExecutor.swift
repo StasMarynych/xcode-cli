@@ -270,7 +270,7 @@ struct CommandExecutor: CommandExecutorProtocol {
         arguments.append(config.buildConfiguration)
         
         arguments.append("-destination")
-        arguments.append(formatDestination(config.destination))
+        arguments.append(CommandExecutor.formatDestinationString(config.destination))
         
         switch action {
         case .build:
@@ -365,7 +365,7 @@ struct CommandExecutor: CommandExecutorProtocol {
         return arguments
     }
     
-    private func formatDestination(_ destination: Destination) -> String {
+    static func formatDestinationString(_ destination: Destination) -> String {
         switch destination {
         case let .simulator(name, os):
             if os == "latest" {

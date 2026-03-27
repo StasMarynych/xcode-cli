@@ -3,7 +3,7 @@ import Foundation
 public struct AppSpec: Codable, Equatable {
     public let projectPath: String?
     public let workspacePath: String?
-    public let scheme: String
+    public let scheme: String?
     public let buildConfiguration: String?
     public let signing: SigningConfiguration?
     public let testTargets: [String]?
@@ -34,7 +34,7 @@ public struct AppSpec: Codable, Equatable {
     public init(
         projectPath: String? = nil,
         workspacePath: String? = nil,
-        scheme: String,
+        scheme: String? = nil,
         buildConfiguration: String? = nil,
         signing: SigningConfiguration? = nil,
         testTargets: [String]? = nil,

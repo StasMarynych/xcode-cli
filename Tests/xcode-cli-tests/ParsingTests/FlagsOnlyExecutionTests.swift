@@ -147,16 +147,16 @@ struct FlagsOnlyExecutionTests {
             destination: "platform=iOS Simulator",
             signingIdentity: "Apple Distribution",
             signingStyle: "manual",
-            provisioningProfileUUID: "uuid-1234",
+            provisioningProfilePath: "/path/to/profile.mobileprovision",
             teamID: "TEAM456"
         )
-        
+
         let config = try merger.merge(spec: nil, flags: flags)
-        
+
         #expect(config.signing != nil)
         #expect(config.signing?.identity == "Apple Distribution")
         #expect(config.signing?.style == .manual)
-        #expect(config.signing?.provisioningProfile?.uuid == "uuid-1234")
+        #expect(config.signing?.provisioningProfile?.path == "/path/to/profile.mobileprovision")
         #expect(config.signing?.teamID == "TEAM456")
     }
     

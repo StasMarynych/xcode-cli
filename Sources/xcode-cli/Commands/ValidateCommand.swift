@@ -40,7 +40,7 @@ struct ValidateCommand: AsyncParsableCommand {
                 rows.append(("Workspace", workspacePath))
             }
 
-            rows.append(("Scheme", appSpec.scheme))
+            if let scheme = appSpec.scheme { rows.append(("Scheme", scheme)) }
 
             if let buildConfiguration = appSpec.buildConfiguration {
                 rows.append(("Configuration", buildConfiguration))

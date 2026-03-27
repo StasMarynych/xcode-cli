@@ -10,23 +10,17 @@ struct ArchiveCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to App Spec YAML file")
     var spec: String?
 
-    @Option(name: .long, help: "Project file path (.xcodeproj)")
-    var project: String?
-
-    @Option(name: .long, help: "Workspace file path (.xcworkspace)")
-    var workspace: String?
-
     @Option(name: [.short, .long], help: "Scheme name")
     var scheme: String?
 
     @Option(name: [.short, .long], help: "Build configuration (Debug, Release, etc.)")
     var configuration: String?
 
-    @Option(name: [.short, .long], help: "Destination (e.g., 'generic/platform=iOS')")
-    var destination: String?
-
     @Option(name: .long, help: "Archive output path")
     var archivePath: String?
+
+    @Option(name: .long, help: "Derived data path")
+    var derivedDataPath: String?
 
     @Option(name: .long, help: "Code signing identity")
     var signingIdentity: String?
@@ -34,20 +28,14 @@ struct ArchiveCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Code signing style (automatic or manual)")
     var signingStyle: String?
 
-    @Option(name: .long, help: "Provisioning profile UUID")
-    var provisioningProfileUUID: String?
-
-    @Option(name: .long, help: "Provisioning profile name")
-    var provisioningProfileName: String?
-
-    @Option(name: .long, help: "Provisioning profile path")
-    var provisioningProfilePath: String?
-
     @Option(name: .long, help: "Development team ID")
     var teamID: String?
 
-    @Option(name: .long, help: "Derived data path")
-    var derivedDataPath: String?
+    @Option(name: .long, help: "Provisioning profile path")
+    var provisioningProfile: String?
+
+    @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
+    var formatter: String?
 
     @Flag(name: .long, help: "Enable verbose output")
     var verbose: Bool = false
@@ -55,39 +43,31 @@ struct ArchiveCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Suppress non-essential output")
     var quiet: Bool = false
 
-    @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
-    var formatter: String?
-
     func run() async throws {
         applyVerbosity(quiet: quiet, verbose: verbose)
 
-        let config = try resolveConfig(
-            spec: spec, 
+        let config = try await resolveConfig(
+            spec: spec,
             flags: CommandFlags(
-                spec: spec, 
-                project: project, 
-                workspace: workspace,
-                scheme: scheme, 
-                configuration: configuration, 
-                destination: destination,
-                signingIdentity: signingIdentity, 
+                spec: spec,
+                scheme: scheme,
+                configuration: configuration,
+                signingIdentity: signingIdentity,
                 signingStyle: signingStyle,
-                provisioningProfileUUID: provisioningProfileUUID,
-                provisioningProfileName: provisioningProfileName,
-                provisioningProfilePath: provisioningProfilePath,
-                teamID: teamID, 
-                archivePath: archivePath, 
+                provisioningProfilePath: provisioningProfile,
+                teamID: teamID,
+                archivePath: archivePath,
                 derivedDataPath: derivedDataPath
             )
         )
 
         logCommandContext(config, command: "Archive")
 
-        let runner: ProcessRunnerProtocol = if let formatter { 
-            FormattingProcessRunner(formatterPath: formatter) 
+        let runner: ProcessRunnerProtocol = if let formatter {
+            FormattingProcessRunner(formatterPath: formatter)
         } else {
             ProcessRunner()
-        } 
+        }
 
         let executor = CommandExecutor(processRunner: runner)
         let start = Date()

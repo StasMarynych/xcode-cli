@@ -83,3 +83,15 @@ public enum SimulatorState: String, Codable, Sendable {
         self = SimulatorState(rawValue: raw) ?? .unknown
     }
 }
+
+public enum ProjectReference: Equatable {
+    case workspace(path: String)
+    case project(path: String)
+
+    public var path: String {
+        switch self {
+        case .workspace(let path), .project(let path): 
+            path
+        }
+    }
+}

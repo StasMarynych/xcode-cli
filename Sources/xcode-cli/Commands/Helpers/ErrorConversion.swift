@@ -50,6 +50,8 @@ extension MergerError {
             .invalidCodeSignStyle(style: style)
         case .invalidExportMethod(let method):
             .invalidExportMethod(method: method)
+        case .autoDetectionFailed(let message):
+            .autoDetectionFailed(message)
         }
     }
 }

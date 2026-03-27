@@ -25,7 +25,12 @@ public struct YAMLParser: YAMLParserProtocol {
         
         do {
             let spec = try decoder.decode(AppSpec.self, from: yamlString)
+            guard spec.scheme != nil else {
+                throw YAMLParserError.missingRequiredField("scheme")
+            }
             return spec
+        } catch let error as YAMLParserError {
+            throw error
         } catch let error as DecodingError {
             throw YAMLParserError.fromDecodingError(error)
         } catch {

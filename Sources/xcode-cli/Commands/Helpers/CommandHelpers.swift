@@ -1,10 +1,53 @@
 import Foundation
 
-func resolveConfig(spec specPath: String?, flags: CommandFlags) throws -> Configuration {
+func resolveConfig(
+    spec specPath: String?,
+    flags: CommandFlags,
+    directory: String = FileManager.default.currentDirectoryPath
+) async throws -> Configuration {
     let appSpec = try loadAppSpec(from: specPath)
+    var enrichedFlags = flags
+
+    if enrichedFlags.project == nil, enrichedFlags.workspace == nil, appSpec?.projectPath == nil, appSpec?.workspacePath == nil {
+        do {
+            let reference = try AutoDetector().detectProjectOrWorkspace(in: directory)
+
+            switch reference {
+            case .workspace(let path):
+                enrichedFlags.workspace = path
+            case .project(let path):
+                enrichedFlags.project = path
+            }
+        } catch let error as AutoDetectionError {
+            throw CLIError.configurationError(.autoDetectionFailed(
+                autoDetectionMessage(for: error, directory: directory, reference: nil)
+            ))
+        }
+    }
+
+    if enrichedFlags.scheme == nil, appSpec?.scheme == nil {
+        let reference: ProjectReference?
+        if let workspace = enrichedFlags.workspace {
+            reference = .workspace(path: workspace)
+        } else if let project = enrichedFlags.project {
+            reference = .project(path: project)
+        } else {
+            reference = nil
+        }
+
+        if let reference {
+            do {
+                enrichedFlags.scheme = try await AutoDetector().detectScheme(for: reference)
+            } catch let error as AutoDetectionError {
+                throw CLIError.configurationError(.autoDetectionFailed(
+                    autoDetectionMessage(for: error, directory: directory, reference: reference)
+                ))
+            }
+        }
+    }
 
     do {
-        return try ConfigurationMerger().merge(spec: appSpec, flags: flags)
+        return try ConfigurationMerger().merge(spec: appSpec, flags: enrichedFlags)
     } catch let error as MergerError {
         throw CLIError.configurationError(error.toConfigurationError())
     } catch {
@@ -18,6 +61,11 @@ func applyVerbosity(quiet: Bool, verbose: Bool) {
     } else if verbose {
         Logger.shared.setVerbosity(.verbose)
     }
+}
+
+func resolveDestinationString(simulator: String?, device: String?, os: String?) throws -> String {
+    let destination = try DestinationResolver().resolve(simulator: simulator, device: device, os: os)
+    return destination.map { CommandExecutor.formatDestinationString($0) } ?? "generic/platform=iOS Simulator"
 }
 
 /// Logs a fastlane-style context table showing the resolved build configuration
@@ -55,6 +103,24 @@ func logCommandContext(_ config: Configuration, command: String) {
 
     logTable(rows: rows, title: nil)
     logSeparator()
+}
+
+private func autoDetectionMessage(
+    for error: AutoDetectionError,
+    directory: String,
+    reference: ProjectReference?
+) -> String {
+    switch error {
+    case .noProjectFound:
+        return "No .xcodeproj or .xcworkspace found in \(directory). Create a spec file or run from your project directory."
+    case .multipleProjectsFound(let paths):
+        return "Multiple projects found: \(paths.joined(separator: ", ")). Specify one via the spec file."
+    case .noSchemeFound:
+        let project = reference?.path ?? directory
+        return "No schemes found in \(project). Ensure the project has at least one scheme."
+    case .multipleSchemesFound(let schemes):
+        return "Multiple schemes found: \(schemes.joined(separator: ", ")). Use --scheme or set scheme in the spec file."
+    }
 }
 
 private func loadAppSpec(from path: String?) throws -> AppSpec? {

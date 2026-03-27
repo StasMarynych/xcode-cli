@@ -9,8 +9,6 @@ struct CommandFlags: Equatable {
     var destination: String?
     var signingIdentity: String?
     var signingStyle: String?
-    var provisioningProfileUUID: String?
-    var provisioningProfileName: String?
     var provisioningProfilePath: String?
     var teamID: String?
     var archivePath: String?
@@ -21,7 +19,7 @@ struct CommandFlags: Equatable {
     var testTargets: [String]?
     var parallelTesting: Bool?
     var parallelTestingWorkers: Int?
-    
+
     init(
         spec: String? = nil,
         project: String? = nil,
@@ -31,8 +29,6 @@ struct CommandFlags: Equatable {
         destination: String? = nil,
         signingIdentity: String? = nil,
         signingStyle: String? = nil,
-        provisioningProfileUUID: String? = nil,
-        provisioningProfileName: String? = nil,
         provisioningProfilePath: String? = nil,
         teamID: String? = nil,
         archivePath: String? = nil,
@@ -52,8 +48,6 @@ struct CommandFlags: Equatable {
         self.destination = destination
         self.signingIdentity = signingIdentity
         self.signingStyle = signingStyle
-        self.provisioningProfileUUID = provisioningProfileUUID
-        self.provisioningProfileName = provisioningProfileName
         self.provisioningProfilePath = provisioningProfilePath
         self.teamID = teamID
         self.archivePath = archivePath
