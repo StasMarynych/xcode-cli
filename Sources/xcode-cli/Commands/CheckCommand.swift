@@ -2,8 +2,8 @@ import ArgumentParser
 import Subprocess
 
 extension XCodeCLI {
-    struct Check: AsyncParsableCommand {
-        struct CommandLineToolsCheck: AsyncParsableCommand {
+    struct CheckCommand: AsyncParsableCommand {
+        struct CommandLineToolsCheckCommand: AsyncParsableCommand {
             static let configuration = CommandConfiguration(
                 commandName: "tools",
                 abstract: "Checks if Xcode Command Line Tools are installed and ready to use"
@@ -25,7 +25,7 @@ extension XCodeCLI {
             }
         }
         
-        struct XcodeCheck: AsyncParsableCommand {
+        struct XcodeCheckCommand: AsyncParsableCommand {
             static let configuration = CommandConfiguration(
                 commandName: "xcode",
                 abstract: "Checks if Xcode is installed and ready to use"
@@ -50,7 +50,7 @@ extension XCodeCLI {
         static let configuration = CommandConfiguration(
             commandName: "check",
             abstract: "Checks if Xcode and Xcode Command Line Tools are installed and ready to use",
-            subcommands: [CommandLineToolsCheck.self, XcodeCheck.self]
+            subcommands: [CommandLineToolsCheckCommand.self, XcodeCheckCommand.self]
         )
     }
 }

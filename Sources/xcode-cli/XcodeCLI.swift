@@ -10,6 +10,7 @@ struct XCodeCLI: AsyncParsableCommand {
         abstract: "Native Swift CLI for Xcode automation",
         version: "1.0.0",
         subcommands: [
+            CheckCommand.self,
             BuildCommand.self,
             TestCommand.self,
             BuildForTestingCommand.self,
