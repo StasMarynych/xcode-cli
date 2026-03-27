@@ -10,6 +10,12 @@ struct ReleaseCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to App Spec YAML file")
     var spec: String?
 
+    @Option(name: .long, help: "Path to .xcodeproj file")
+    var project: String?
+
+    @Option(name: .long, help: "Path to .xcworkspace file")
+    var workspace: String?
+
     @Option(name: [.short, .long], help: "Scheme name")
     var scheme: String?
 
@@ -45,6 +51,8 @@ struct ReleaseCommand: AsyncParsableCommand {
 
         var flags = CommandFlags(
             spec: self.spec,
+            project: self.project,
+            workspace: self.workspace,
             scheme: self.scheme,
             configuration: self.configuration,
             signingIdentity: self.signingIdentity,

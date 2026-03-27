@@ -12,13 +12,9 @@ public struct ConfigurationValidator {
     private func validateProjectOrWorkspace(_ spec: AppSpec) throws {
         let hasProject = spec.projectPath != nil
         let hasWorkspace = spec.workspacePath != nil
-        
+
         if hasProject && hasWorkspace {
             throw ValidationError.bothProjectAndWorkspaceSpecified
-        }
-        
-        if !hasProject && !hasWorkspace {
-            throw ValidationError.missingProjectOrWorkspace
         }
     }
     

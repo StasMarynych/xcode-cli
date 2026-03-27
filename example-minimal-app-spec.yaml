@@ -1,8 +1,2 @@
-# Minimal Example App Spec
-# This file shows the minimum required configuration for xcode-cli
-
-# Project source (choose one)
 project_path: "MyApp.xcodeproj"
-
-# Required: Scheme name
 scheme: "MyApp"

@@ -19,17 +19,33 @@ struct ValidationRulesTests {
         "Project/workspace mutual exclusivity and requirement",
         arguments: [
             ProjectWorkspaceTestCase(
-                project: "MyApp.xcodeproj", workspace: "MyApp.xcworkspace", shouldPass: false,
-                expectedError: .bothProjectAndWorkspaceSpecified, description: "both specified"),
+                project: "MyApp.xcodeproj",
+                workspace: "MyApp.xcworkspace",
+                shouldPass: false,
+                expectedError: .bothProjectAndWorkspaceSpecified, 
+                description: "both specified"
+            ),
             ProjectWorkspaceTestCase(
-                project: "MyApp.xcodeproj", workspace: nil, shouldPass: true, expectedError: nil,
-                description: "project only"),
+                project: "MyApp.xcodeproj",
+                workspace: nil,
+                shouldPass: true,
+                expectedError: nil,
+                description: "project only"
+            ),
             ProjectWorkspaceTestCase(
-                project: nil, workspace: "MyApp.xcworkspace", shouldPass: true, expectedError: nil,
-                description: "workspace only"),
+                project: nil,
+                workspace: "MyApp.xcworkspace",
+                shouldPass: true,
+                expectedError: nil,
+                description: "workspace only"
+            ),
             ProjectWorkspaceTestCase(
-                project: nil, workspace: nil, shouldPass: false,
-                expectedError: .missingProjectOrWorkspace, description: "neither specified"),
+                project: nil,
+                workspace: nil,
+                shouldPass: true,
+                expectedError: nil,
+                description: "neither specified — auto-detection will resolve"
+            ),
         ]
     )
     func projectWorkspaceMutualExclusivity(testCase: ProjectWorkspaceTestCase) throws {
@@ -62,26 +78,61 @@ struct ValidationRulesTests {
         "Provisioning profile mutual exclusivity",
         arguments: [
             ProvisioningProfileTestCase(
-                uuid: "test-uuid", name: "test-name", path: nil, shouldPass: false,
-                description: "UUID and name"),
-            ProvisioningProfileTestCase(
-                uuid: "test-uuid", name: nil, path: "/path/to/profile", shouldPass: false,
-                description: "UUID and path"),
-            ProvisioningProfileTestCase(
-                uuid: nil, name: "test-name", path: "/path/to/profile", shouldPass: false,
-                description: "name and path"),
-            ProvisioningProfileTestCase(
-                uuid: "test-uuid", name: "test-name", path: "/path/to/profile", shouldPass: false,
-                description: "all three"),
-            ProvisioningProfileTestCase(
-                uuid: "test-uuid", name: nil, path: nil, shouldPass: true, description: "UUID only"),
-            ProvisioningProfileTestCase(
-                uuid: nil, name: "test-name", path: nil, shouldPass: true, description: "name only"),
-            ProvisioningProfileTestCase(
-                uuid: nil, name: nil, path: "/path/to/profile", shouldPass: true, description: "path only"
+                uuid: "test-uuid",
+                name: "test-name",
+                path: nil,
+                shouldPass: false,
+                description: "UUID and name"
             ),
             ProvisioningProfileTestCase(
-                uuid: nil, name: nil, path: nil, shouldPass: true, description: "none specified"),
+                uuid: "test-uuid",
+                name: nil,
+                path: "/path/to/profile",
+                shouldPass: false,
+                description: "UUID and path"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: nil,
+                name: "test-name",
+                path: "/path/to/profile",
+                shouldPass: false,
+                description: "name and path"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: "test-uuid",
+                name: "test-name",
+                path: "/path/to/profile",
+                shouldPass: false,
+                description: "all three"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: "test-uuid", 
+                name: nil,
+                path: nil,
+                shouldPass: true,
+                description: "UUID only"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: nil,
+                name: "test-name",
+                path: nil,
+                shouldPass: true,
+                description: "name only"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: nil,
+                name: nil,
+                path: "/path/to/profile",
+                shouldPass: true,
+                description: "path only"
+            ),
+            ProvisioningProfileTestCase(
+                uuid: nil,
+                name: nil,
+                path: nil,
+                shouldPass: true,
+                description: "none specified"
+            ),
         ]
     )
     func provisioningProfileMutualExclusivity(testCase: ProvisioningProfileTestCase) throws {

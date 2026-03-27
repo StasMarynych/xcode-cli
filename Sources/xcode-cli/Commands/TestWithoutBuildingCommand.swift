@@ -10,6 +10,12 @@ struct TestWithoutBuildingCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to App Spec YAML file")
     var spec: String?
 
+    @Option(name: .long, help: "Path to .xcodeproj file")
+    var project: String?
+
+    @Option(name: .long, help: "Path to .xcworkspace file")
+    var workspace: String?
+
     @Option(name: [.short, .long], help: "Scheme name")
     var scheme: String?
 
@@ -65,6 +71,8 @@ struct TestWithoutBuildingCommand: AsyncParsableCommand {
             spec: spec,
             flags: CommandFlags(
                 spec: spec,
+                project: project,
+                workspace: workspace,
                 scheme: scheme,
                 configuration: configuration,
                 destination: try Destination(simulator: simulator, device: device, os: os),

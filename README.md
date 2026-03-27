@@ -61,6 +61,8 @@ xcode-cli build [OPTIONS]
 
 **Options:**
 - `--spec <path>` — Path to App Spec YAML file
+- `--project <path>` — Path to `.xcodeproj` file
+- `--workspace <path>` — Path to `.xcworkspace` file
 - `-s, --scheme <name>` — Scheme name
 - `-c, --configuration <name>` — Build configuration (Debug/Release)
 - `--simulator <name>` — Target simulator by name (e.g. `iPhone 15`)
@@ -191,6 +193,8 @@ xcode-cli archive [OPTIONS]
 
 **Options:**
 - `--spec <path>` — Path to App Spec YAML file
+- `--project <path>` — Path to `.xcodeproj` file
+- `--workspace <path>` — Path to `.xcworkspace` file
 - `-s, --scheme <name>` — Scheme name
 - `-c, --configuration <name>` — Build configuration
 - `--archive-path <path>` — Archive output path
@@ -250,6 +254,8 @@ xcode-cli release [OPTIONS]
 
 **Options:**
 - `--spec <path>` — Path to App Spec YAML file
+- `--project <path>` — Path to `.xcodeproj` file
+- `--workspace <path>` — Path to `.xcworkspace` file
 - `-s, --scheme <name>` — Scheme name
 - `-c, --configuration <name>` — Build configuration
 - `--derived-data-path <path>` — Custom derived data path
@@ -337,40 +343,27 @@ build_configuration: "Release"
 ### Complete Schema
 
 ```yaml
-# Project source (choose one; omit both to enable auto-detection)
 project_path: "MyApp.xcodeproj"
-# workspace_path: "MyApp.xcworkspace"
-
-# Scheme (omit to enable auto-detection)
 scheme: "MyApp"
-
-# Build configuration (defaults to "Release")
 build_configuration: "Release"
 
-# Signing configuration
 signing:
-  style: "manual"           # "manual" or "automatic"
+  style: "manual"
   identity: "Apple Distribution: My Company (TEAM123)"
   team_id: "TEAM123"
   provisioning_profile:
     uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-    # name: "MyApp Distribution Profile"
-    # path: "/path/to/profile.mobileprovision"
 
-# Test configuration
 test_targets:
   - "MyAppTests"
   - "MyAppUITests"
 parallel_testing: true
 parallel_testing_workers: 4
 
-# Archive and export
 archive_path: "./build/MyApp.xcarchive"
 export_path: "./build"
-export_method: "app-store"   # app-store, ad-hoc, enterprise, development
+export_method: "app-store"
 export_options_plist: "./ExportOptions.plist"
-
-# Build output
 build_output_path: "./DerivedData"
 ```
 
