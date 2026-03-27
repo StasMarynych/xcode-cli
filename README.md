@@ -1,6 +1,6 @@
 # xcode-cli
 
-A native Swift CLI tool for Xcode build automation. Provides a Ruby-free alternative to Fastlane for iOS build, test, and release workflows.
+A pure Swift command-line tool for Xcode automation. Built for developers who work outside Xcode — whether that's a different editor, a CI pipeline, or a custom build script — and want a native, zero-dependency way to build, test, and ship iOS apps.
 
 ## Features
 
@@ -63,8 +63,8 @@ xcode-cli build [OPTIONS]
 - `--spec <path>` — Path to App Spec YAML file
 - `--project <path>` — Path to `.xcodeproj` file
 - `--workspace <path>` — Path to `.xcworkspace` file
-- `-s, --scheme <name>` — Scheme name
-- `-c, --configuration <name>` — Build configuration (Debug/Release)
+- `--scheme <name>` — Scheme name
+- `--configuration <name>` — Build configuration (Debug/Release)
 - `--simulator <name>` — Target simulator by name (e.g. `iPhone 15`)
 - `--device <name>` — Target physical device by name
 - `--os <version>` — OS version for simulator (e.g. `17.0`); requires `--simulator`
@@ -72,7 +72,7 @@ xcode-cli build [OPTIONS]
 - `--signing-identity <identity>` — Code signing identity
 - `--signing-style <style>` — Code signing style (`automatic` or `manual`)
 - `--team-id <id>` — Development team ID
-- `--provisioning-profile-uuid <uuid>` — Provisioning profile UUID
+- `--provisioning-profile <path>` — Path to provisioning profile
 - `--formatter <path>` — Path to formatter binary (e.g. `xcbeautify`, `xcpretty`)
 - `--verbose` — Enable verbose output
 - `--quiet` — Suppress non-essential output
@@ -195,14 +195,14 @@ xcode-cli archive [OPTIONS]
 - `--spec <path>` — Path to App Spec YAML file
 - `--project <path>` — Path to `.xcodeproj` file
 - `--workspace <path>` — Path to `.xcworkspace` file
-- `-s, --scheme <name>` — Scheme name
-- `-c, --configuration <name>` — Build configuration
+- `--scheme <name>` — Scheme name
+- `--configuration <name>` — Build configuration
 - `--archive-path <path>` — Archive output path
 - `--derived-data-path <path>` — Custom derived data path
 - `--signing-identity <identity>` — Code signing identity
 - `--signing-style <style>` — Code signing style
 - `--team-id <id>` — Development team ID
-- `--provisioning-profile-uuid <uuid>` — Provisioning profile UUID
+- `--provisioning-profile <path>` — Path to provisioning profile
 - `--formatter <path>` — Path to formatter binary
 - `--verbose` / `--quiet`
 
@@ -256,13 +256,13 @@ xcode-cli release [OPTIONS]
 - `--spec <path>` — Path to App Spec YAML file
 - `--project <path>` — Path to `.xcodeproj` file
 - `--workspace <path>` — Path to `.xcworkspace` file
-- `-s, --scheme <name>` — Scheme name
-- `-c, --configuration <name>` — Build configuration
+- `--scheme <name>` — Scheme name
+- `--configuration <name>` — Build configuration
 - `--derived-data-path <path>` — Custom derived data path
 - `--signing-identity <identity>` — Code signing identity
 - `--signing-style <style>` — Code signing style
 - `--team-id <id>` — Development team ID
-- `--provisioning-profile-uuid <uuid>` — Provisioning profile UUID
+- `--provisioning-profile <path>` — Path to provisioning profile
 - `--formatter <path>` — Path to formatter binary
 - `--verbose` / `--quiet`
 

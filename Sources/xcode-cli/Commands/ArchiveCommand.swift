@@ -16,10 +16,10 @@ struct ArchiveCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to .xcworkspace file")
     var workspace: String?
 
-    @Option(name: [.short, .long], help: "Scheme name")
+    @Option(name: .long, help: "Scheme name")
     var scheme: String?
 
-    @Option(name: [.short, .long], help: "Build configuration (Debug, Release, etc.)")
+    @Option(name: .long, help: "Build configuration (Debug, Release, etc.)")
     var configuration: String?
 
     @Option(name: .long, help: "Archive output path")

@@ -16,10 +16,10 @@ struct RunCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Path to .xcworkspace file")
     var workspace: String?
 
-    @Option(name: [.short, .long], help: "Scheme name")
+    @Option(name: .long, help: "Scheme name")
     var scheme: String?
 
-    @Option(name: [.short, .long], help: "Build configuration (Debug, Release, etc.)")
+    @Option(name: .long, help: "Build configuration (Debug, Release, etc.)")
     var configuration: String?
 
     @Option(name: .long, help: "Simulator name (e.g. 'iPhone 15')")
@@ -30,9 +30,6 @@ struct RunCommand: AsyncParsableCommand {
 
     @Option(name: .long, help: "OS version for simulator (e.g. '17.0')")
     var os: String?
-
-    @Flag(name: .long, help: "Wait for debugger to attach before launching")
-    var waitForDebugger: Bool = false
 
     @Option(name: .long, help: "Derived data path")
     var derivedDataPath: String?
@@ -51,6 +48,9 @@ struct RunCommand: AsyncParsableCommand {
 
     @Option(name: .long, help: "Path to output formatter binary (e.g. xcbeautify, xcpretty)")
     var formatter: String?
+
+    @Flag(name: .long, help: "Wait for debugger to attach before launching")
+    var waitForDebugger: Bool = false
 
     @Flag(name: .long, help: "Enable verbose output")
     var verbose: Bool = false
